@@ -3,7 +3,7 @@
 \  Trigger on signal
 \ --------------------
 
-\  needs oscilloscope.txt, plotbuffer.txt, delay.txt
+\  needs oscilloscope.4th, plotbuffer.4th, delay.4th
 
 buffermask 2/ variable triggerposition  \ For centered trigger
 1024          variable triggerlevel-ch1  \  ADC level to cross for Channel 1

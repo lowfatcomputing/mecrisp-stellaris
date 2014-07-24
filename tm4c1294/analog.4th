@@ -1,6 +1,6 @@
 
 \ Analog-Digital-Converter
-\   needs basisdefinitions.txt and pll.txt
+\   needs basisdefinitions.4th and pll.4th
 
 \ PLL VCO has to be running on 480 MHz for this examples. 
 \ Use 120MHz before.

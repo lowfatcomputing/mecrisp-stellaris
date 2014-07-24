@@ -1,6 +1,6 @@
 
 \ Timer usage for colourful PWM generation 
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 $400FE604 constant RCGCTIMER
 

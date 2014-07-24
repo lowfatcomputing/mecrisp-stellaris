@@ -1,6 +1,6 @@
 
 \ Delay with Systick-Timer
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 $E000E010 constant NVIC_ST_CTRL_R
 $E000E014 constant NVIC_ST_RELOAD_R      

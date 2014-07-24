@@ -1,6 +1,6 @@
 
 \ Analog-Digital-Converters sample two channels with crystal stabilized 1Msps into circular buffer
-\   needs basisdefinitions.txt and pll.txt
+\   needs basisdefinitions.4th and pll.4th
 
 compiletoram \ For RAM only. Interrupt handler is too slow for 1Msps in Flash with waitstates.
 

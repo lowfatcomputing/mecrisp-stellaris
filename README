@@ -195,7 +195,7 @@ USB|       Teensy 3.1 	      o
     N X X
     D
   
-  On startup, this runs with internal FLL at 20.97 MHz.  See MCG.txt for how to switch to 96MHz
+  On startup, this runs with internal FLL at 20.97 MHz.  See MCG.4th for how to switch to 96MHz
 
 
 Hardware and configuration for nRF51822:

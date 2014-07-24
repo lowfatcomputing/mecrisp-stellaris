@@ -1,6 +1,6 @@
 
 \ Transmit ADC samples as UDP packet stream over ethernet
-\   needs basisdefinitions.txt and ethernet.txt
+\   needs basisdefinitions.4th and ethernet.4th
 
 \ -----------------------------------------------------------------------------
 \ Clock setup for 25 MHz crystal and 120 MHz PLL
@@ -248,7 +248,7 @@ $40038FC8 constant ADC0_CC           \ Clock configuration
  
 \ Fine tuning clock calibration for a precise frequency source
 \ done in assembly for 1 MHz frequency output
-\   needs basisdefinitions.txt and pll.txt
+\   needs basisdefinitions.4th and pll.4th
 
 \ Atomic LED IO
 

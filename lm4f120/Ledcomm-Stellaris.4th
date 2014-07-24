@@ -1,6 +1,6 @@
 
 \ Ledcomm-Stellaris
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 compiletoflash
 

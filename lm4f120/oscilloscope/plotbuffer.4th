@@ -3,7 +3,7 @@
 \  To plot an oscilloscope trace as ASCII art
 \ --------------------------------------------
 
-\  needs oscilloscope.txt
+\  needs oscilloscope.4th
 
 : buffermax ( -- u ) \ Search for maximum measurement in buffer
   0 fetchsample-ch1 0 fetchsample-ch2 umax

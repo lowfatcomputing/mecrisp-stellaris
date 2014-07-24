@@ -1,4 +1,4 @@
-\ Requires "nvic.txt"
+\ Requires "nvic.4th"
 
 \ Byte registers for UART control
 $4006A000 constant UART0_BDH
@@ -54,7 +54,7 @@ $4006A016 constant UART0_RCFIFO
 		
 
 \ Routine to enable UART Error Interrupts
-\ Requires irq-enable from "nvic.txt"
+\ Requires irq-enable from "nvic.4th"
 : uart0e-eint 
   %00101100  uart0_c2 c! \ Enable Receiver full interrupt (and be sure receiver/transmitter still enabled)
   %00001111  uart0_c3 c! \ Enable RX Overrun,  Noise Error, Framing Error, and  Parity Error interrupts

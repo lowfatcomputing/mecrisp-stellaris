@@ -3,7 +3,7 @@
 \  Manual trigger oscilloscope
 \ ------------------------------
 
-\  needs oscilloscope.txt, plotbuffer.txt
+\  needs oscilloscope.4th, plotbuffer.4th
 
 : manual-oscilloscope ( -- )
   init-capture

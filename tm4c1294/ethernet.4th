@@ -1,5 +1,5 @@
 \ Ethernet driver for TM4C1294 contributed by Bernd Paysan
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 compiletoflash
 

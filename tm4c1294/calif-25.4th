@@ -1,7 +1,7 @@
 
 \ Fine tuning clock calibration for a precise frequency source
 \ done in Forth for 100 kHz frequency output
-\   needs basisdefinitions.txt and pll.txt
+\   needs basisdefinitions.4th and pll.4th
 
 : led-on ( -- ) led-1 portn_data ! inline ;
 : led-off ( -- )    0 portn_data ! inline ;

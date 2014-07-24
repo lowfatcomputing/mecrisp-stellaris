@@ -1,6 +1,6 @@
 
 \ Interrupt on Switch 1
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 $40025404 constant PORTF_IS  ( Interrupt Sense )
 $40025408 constant PORTF_IBE ( Interrupt Both Edges )

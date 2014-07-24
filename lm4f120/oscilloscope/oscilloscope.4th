@@ -3,7 +3,7 @@
 \  Oscilloscope to sample two channels with 1 Msps into circular buffer
 \ ----------------------------------------------------------------------
 
-\  needs basisdefinitions.txt and pll.txt
+\  needs basisdefinitions.4th and pll.4th
 
 \ ---------------------------
 \  Constants, Pins and Ports

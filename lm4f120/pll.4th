@@ -1,6 +1,6 @@
 
 \ PLL initialisation code for 80 MHz.
-\ You can choose and include your favourite speed from pll-values.txt
+\ You can choose and include your favourite speed from pll-values.4th
 
 $400FE050 constant SYSCTL_RIS_R           
 $00000040 constant SYSCTL_RIS_PLLLRIS       \  PLL Lock Raw Interrupt Status

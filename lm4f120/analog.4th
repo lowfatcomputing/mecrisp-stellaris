@@ -1,6 +1,6 @@
 
 \ Analog-Digital-Converter
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 $400FE638 constant RCGCADC
 

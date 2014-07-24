@@ -1,6 +1,6 @@
 
 \ Timer 0A in 16-bit-Mode with Interrupt
-\   needs basisdefinitions.txt
+\   needs basisdefinitions.4th
 
 $00080000 constant NVIC_EN0_INT19          \ Interrupt 19 enable
 $E000E100 constant NVIC_EN0_R              \ IRQ 0 to 31 Set Enable Register
