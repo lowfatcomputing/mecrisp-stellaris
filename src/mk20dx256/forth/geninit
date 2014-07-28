@@ -36,7 +36,7 @@
   ssed -Rf ss < led.4th
   ssed -Rf ss < asciiart.4th
   ssed -Rf ss < init.4th
-  ssed -Rf ss < ../common/disassembler-m3.4th
+  ssed -Rf ss < ../../common/forth/disassembler-m3.4th
   ssed -Rf ss < struct.4th
 
   echo compiletoram
