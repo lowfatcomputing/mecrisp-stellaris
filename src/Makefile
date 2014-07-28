@@ -27,6 +27,9 @@ all: %.hex
 clean:
 	rm -f *.bin *.hex *.o *.elf *.lst
 
-serial:
-	picocom --omap delbs --emap bsdel --imap lfcrlf -l -b 115200 -p n -d 8 $(TERMPORT)
+me4up:
+	$(CC) -o $(shell pwd)/me4up $(shell pwd)/me4up.c
+
+serial: me4up
+	picocom --send-cmd "$(shell pwd)/me4up" --omap delbs --emap bsdel --imap lfcrlf -l -b 115200 -p n -d 8 $(TERMPORT)
 
