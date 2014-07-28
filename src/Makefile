@@ -6,6 +6,8 @@ ARMGNU?=arm-none-eabi
 COPS=-Wall -Os -nostdlib -nostartfiles -ffreestanding -save-temps
 AOPS=--warn --fatal-warnings
 
+TOP := $(dir $(lastword $(MAKEFILE_LIST)))
+
 all: %.hex
 
 # -mcpu=$(CPU)
@@ -28,8 +30,8 @@ clean:
 	rm -f *.bin *.hex *.o *.elf *.lst
 
 me4up:
-	$(CC) -o $(shell pwd)/me4up $(shell pwd)/me4up.c
+	$(CC) -o $(TOP)me4up $(TOP)me4up.c
 
-serial: me4up
-	picocom --send-cmd "$(shell pwd)/me4up" --omap delbs --emap bsdel --imap lfcrlf -l -b 115200 -p n -d 8 $(TERMPORT)
+serial: $(TOP)me4up
+	picocom --send-cmd "$(TOP)me4up" --omap delbs --emap bsdel --imap lfcrlf -l -b 115200 -p n -d 8 $(TERMPORT)
 

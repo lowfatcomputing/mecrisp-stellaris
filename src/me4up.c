@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 		// remember  last character except leading blanks
 		if (c==EOF || lastchar!='\n' || !isspace(c)) lastchar=c;
 		if (c=='\t') c=' ';
-		if (c=='\n') c='\n';
+		//if (c=='\n') c='\n';
 		if (c==EOF) c='\n';  // final return
 		putchar(c);  
 		// read echo
