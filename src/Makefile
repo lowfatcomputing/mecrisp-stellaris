@@ -30,7 +30,7 @@ clean:
 	rm -f *.bin *.hex *.o *.elf *.lst
 
 me4up:
-	$(CC) -ggdb -std=c99 -o $(TOP)me4up $(TOP)me4up.c
+	$(CC) -O3 -std=c99 -o $(TOP)me4up $(TOP)me4up.c
 
 # FIXME upload with one command rather than calling me4up multiple times.
 %.4th:
