@@ -48,16 +48,17 @@
 @ Up to this point the interrupt vector is the same forall ARM Cortex M0 chips
 @ Special interrupt handlers for this particular chip:
 
-.word nullhandler+1 @ DMA Channel 0 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 1 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 2 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 3 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 4 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 5 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 6 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 7 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 8 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 9 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 0 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 1 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 2 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 3 Transfer Complete and Error
+.word irq_vektor_dma_ch4+1  @ DMA Channel 4 Transfer Complete and Error
+@.word irq_vektor_dma_ch5+1  @ DMA Channel 5 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 5 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 6 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 7 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 8 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 9 Transfer Complete and Error
 .word nullhandler+1 @ DMA Channel 10 Transfer Complete and Error
 .word nullhandler+1 @ DMA Channel 11 Transfer Complete and Error
 .word nullhandler+1 @ DMA Channel 12 Transfer Complete and Error
@@ -85,13 +86,13 @@
 .word nullhandler+1 @ 34 CAN0 Wake up
 .word nullhandler+1 @ 35 I2S0 Transmit
 .word nullhandler+1 @ 36 I2S0 Receive
-.word 0	            @ 37 Reserved
-.word 0	            @ 38 Reserved
-.word 0	            @ 39 Reserved
-.word 0	            @ 40 Reserved
-.word 0	            @ 41 Reserved
-.word 0	            @ 42 Reserved
-.word 0	            @ 43 Reserved
+.word 0             @ 37 Reserved
+.word 0             @ 38 Reserved
+.word 0             @ 39 Reserved
+.word 0             @ 40 Reserved
+.word 0             @ 41 Reserved
+.word 0             @ 42 Reserved
+.word 0             @ 43 Reserved
 .word nullhandler+1 @ 44 UART0 LON sources
 .word irq_vektor_UART0S+1 @ 45 UART0 Status sources
 .word irq_vektor_UART0E+1 @ 46 UART0 Error sources
@@ -99,12 +100,12 @@
 .word nullhandler+1 @ 48 UART1 Error sources
 .word nullhandler+1 @ 49 UART2 Status
 .word nullhandler+1 @ 50 UART2 Error
-.word 0	            @ 51 Reserved
-.word 0	            @ 52 Reserved
-.word 0	            @ 53 Reserved
-.word 0	            @ 54 Reserved
-.word 0	            @ 55 Reserved
-.word 0	            @ 56 Reserved
+.word 0             @ 51 Reserved
+.word 0             @ 52 Reserved
+.word 0             @ 53 Reserved
+.word 0             @ 54 Reserved
+.word 0             @ 55 Reserved
+.word 0             @ 56 Reserved
 .word irq_vektor_adc0+1 @ 57 ADC0 interrupt
 .word irq_vektor_adc1+1 @ 58 ADC1 interrupt
 .word irq_vektor_cmp0+1 @ 59 CMP0 interrutp
@@ -120,17 +121,18 @@
 .word nullhandler+1 @ 69 PIT channel 1
 .word nullhandler+1 @ 70 PIT channel 2
 .word nullhandler+1 @ 71 PIT channel 3
-.word nullhandler+1 @ 72 PDB
+.word irq_vektor_pdb+1 @ 72 PDB
+@.word nullhandler+1 @ 72 PDB
 .word nullhandler+1 @ 73 USB OTG
 .word nullhandler+1 @ 74 USB Charger detect
-.word 0	            @ 75 Reserved
-.word 0	            @ 76 Reserved
-.word 0	            @ 77 Reserved
-.word 0	            @ 78 Reserved
-.word 0	            @ 79 Reserved
-.word 0	            @ 80 Reserved
+.word 0             @ 75 Reserved
+.word 0             @ 76 Reserved
+.word 0             @ 77 Reserved
+.word 0             @ 78 Reserved
+.word 0             @ 79 Reserved
+.word 0             @ 80 Reserved
 .word irq_vektor_dac+1 @ 81 DAC0 interrupt
-.word 0	            @ 82 Reserved
+.word 0             @ 82 Reserved
 .word nullhandler+1 @ 83 TSI Interrupt
 .word nullhandler+1 @ 84 MCG Interrupt
 .word nullhandler+1 @ 85 Low Power PTimer interrupt
@@ -140,8 +142,8 @@
 .word irq_vektor_portc+1 @ 89 Port C interrupt
 .word irq_vektor_portd+1 @ 90 Port D interrupt
 .word irq_vektor_porte+1 @ 91 Port E interrupt
-.word 0	            @ 92 Reserved
-.word 0	            @ 93 Reserved
+.word 0             @ 92 Reserved
+.word 0             @ 93 Reserved
 .word nullhandler+1 @ 94 Reserved
 
 
@@ -163,8 +165,9 @@
 
 .org 0x410
 @ -----------------------------------------------------------------------------
-unhandled:
-  push {lr} 
-  writeln "Unhandled Interrupt !"
-  pop {pc}
+@unhandled:
+@  push {lr} 
+@  writeln "Unhandled Interrupt !"
+@  pop {pc}
 @ -----------------------------------------------------------------------------
+

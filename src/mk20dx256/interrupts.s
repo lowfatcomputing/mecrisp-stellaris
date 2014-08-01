@@ -52,7 +52,7 @@ nop_vektor:                     @        Handler for unused Interrupts
 @ All interrupt handlers work the same way and are generated with a macro:
 @------------------------------------------------------------------------------
 interrupt systick
-initinterrupt fault, nullhandler, unhandled
+initinterrupt fault, nullhandler/*, unhandled*/
 
 
 interrupt adc0
@@ -68,6 +68,25 @@ interrupt portd
 interrupt porte
 interrupt UART0S
 interrupt UART0E
+interrupt pdb
+@interrupt dma_ch0 
+@interrupt dma_ch1 
+@interrupt dma_ch2 
+@interrupt dma_ch3 
+interrupt dma_ch4
+@interrupt dma_ch5 
+@interrupt dma_ch6 
+@interrupt dma_ch7 
+@interrupt dma_ch8 
+@interrupt dma_ch9 
+@interrupt dma_ch10
+@interrupt dma_ch11
+@interrupt dma_ch12
+@interrupt dma_ch13
+@interrupt dma_ch14
+@interrupt dma_ch15
+@interrupt dma_ch16
+
 
 @------------------------------------------------------------------------------
 

@@ -30,8 +30,13 @@ clean:
 	rm -f *.bin *.hex *.o *.elf *.lst
 
 me4up:
-	$(CC) -o $(TOP)me4up $(TOP)me4up.c
+	$(CC) -ggdb -std=c99 -o $(TOP)me4up $(TOP)me4up.c
+
+# FIXME upload with one command rather than calling me4up multiple times.
+%.4th:
+	@$(TOP)me4up -d $(TERMPORT) $@
 
 serial: $(TOP)me4up
 	picocom --send-cmd "$(TOP)me4up" --omap delbs --emap bsdel --imap lfcrlf -l -b 115200 -p n -d 8 $(TERMPORT)
+
 

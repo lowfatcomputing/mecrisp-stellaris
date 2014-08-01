@@ -1,6 +1,6 @@
 \ dac-examples.4th -- Digital-to-Analog Converter (DAC) examples
 \ 
-\ REQUIRES: dac.4th delay.4th
+\ REQUIRES: dac.4th delay.4th nvic.4th
 \ 
 \ Square wave of a counted string.
 \ Triangle wave
@@ -26,7 +26,7 @@
   until
  ;
 
-$FF0 variable amplitude \ < $FFF
+$FF0 variable amplitude \ <= $FFF
 
 : byte>dac ( byte -- )
   $8 0 do
@@ -186,5 +186,6 @@ $7a7 , $7b4 , $7c0 , $7cd , $7d9 , $7e6 , $7f2 , $7ff ,
   until
   0 dac
  ;
+
 
 

@@ -1,8 +1,8 @@
 
 MEMORY
 {
-   rom(RX)   : ORIGIN = 0x00000000, LENGTH = 0x4000
-   ram(WAIL) : ORIGIN = 0x20000000, LENGTH = 0x4000
+   rom(RX)   : ORIGIN = 0x00000000, LENGTH = 256K   /* 0x40000 */
+   ram(WAIL) : ORIGIN = 0x1FFF8000, LENGTH = 64K    /* */
 }
 
 SECTIONS

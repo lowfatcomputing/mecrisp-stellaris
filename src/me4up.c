@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
+#include <getopt.h>
 
 // Minicom uploader has stdin connected to serial input,
 // stdout connected to serial output
@@ -49,66 +51,85 @@ pu rtscts           No
 // when you get an error you might have to enter a ; to get back
 // to a normal prompt.
 
+int meputc(int c, FILE *fdev) {
+	return fdev != NULL ? putc(c,fdev) : putchar(c);
+}
+
+int megetc(FILE *fdev) {
+	return fdev != NULL ? getc(fdev) : getchar();
+}
 
 // wait for prompt -- errc is an error character
-void elfwait(int errc)
+void elfwait(int errc,FILE *fdev)
 {
 	int c;
 	// wait for response
-	while ((c=getchar())!='>' && c!='k') {
+	while ((c=megetc(fdev))!='>' && c!='k') {
 		fputc(c,stderr);
 		if (c==errc) { fprintf(stderr,"\nError - %c\n",errc); exit(2); }
 	}
 	fputc(c,stderr);
 }
 
-
 int main(int argc, char *argv[])
 {
-	FILE *f=NULL;
+	FILE *f=NULL,*fdev=NULL;
 	time_t t0,t1;
 	int c;
 	int lastchar;
-	fprintf(stderr,"am4up V2 by Al Williams\nhttp://www.hotsolder.com\nUploading ");
-	if (argc>1) {
+	//fprintf(stderr,"am4up V2 by Al Williams\nhttp://www.hotsolder.com\nUploading ");
+	/*if (argc<1) {
 		fprintf(stderr,"%s...\n",argv[1]);
-		f=fopen(argv[1],"r");
-	}
-	if (!f) { fprintf(stderr, "No file\n"); exit(1); }
-	putchar('\r'); putchar('\n');
-	elfwait('\0');
-	time(&t0);
-	lastchar='\n';
-	while (lastchar!=EOF) {
-		int c1;
-		c= getc(f);
-		if (c==EOF && lastchar=='\n') break;
-		// newline == CRLF
-		if ((c=='\n'||c=='\r') && lastchar=='\n') continue; // blank line
-		if (c=='\\' && lastchar=='\n') {
-			// comment
-			while (c!='\n' && c!=EOF) c=getc(f);
-			if (c==EOF) break;
-			continue;
+	}*/
+	while ((c = getopt (argc, argv, "d:")) != -1) {
+		switch (c) {
+			case 'd':
+				fdev=fopen(optarg,"a+");
+				break;
+			default:
+				fdev=NULL;
+				break;
 		}
-		// remember  last character except leading blanks
-		if (c==EOF || lastchar!='\n' || !isspace(c)) lastchar=c;
-		if (c=='\t') c=' ';
-		//if (c=='\n') c='\n';
-		if (c==EOF) c='\n';  // final return
-		putchar(c);  
-		// read echo
-		do {
-			c1=getchar(); 
-			fputc(c1,stderr);
-		} while (c1!=c);
+	}
+	time(&t0);
+	for (int index = optind; index < argc; index++) {
+		fprintf(stderr,"\033[4mReading %s\033[0m\n",argv[index]);
+		f=fopen(argv[index],"r");
+		if (!f) { fprintf(stderr, "No file\n"); exit(1); }
+		meputc('\r',fdev); meputc('\n',fdev);
+		elfwait('\0',fdev);
+		lastchar='\n';
+		while (lastchar!=EOF) {
+			int c1;
+			c=getc(f);
+			if (c==EOF && lastchar=='\n') break;
+			// newline == CRLF
+			if ((c=='\n'||c=='\r') && lastchar=='\n') continue; // blank line
+			if (c=='\\' && lastchar=='\n') {
+				// comment
+				while (c!='\n' && c!=EOF) c=getc(f);
+				if (c==EOF) break;
+				continue;
+			}
+			// remember  last character except leading blanks
+			if (c==EOF || lastchar!='\n' || !isspace(c)) lastchar=c;
+			if (c=='\t') c=' ';
+			if (c=='\r') c='\n';
+			if (c==EOF) c='\n';  // final return
+			meputc(c,fdev);
+			// read echo
+			do {
+				c1=megetc(fdev); 
+				fputc(c1,stderr);
+			} while (c1!=c);
 
-		if (c=='\r' || c==EOF) {
-			elfwait('?');
+			if (c=='\r' || c==EOF) {
+				elfwait('?',fdev);
+			}
 		}
 	}
 	time(&t1);
-	fprintf(stderr,"\nTransfer time=%ld seconds\n",t1-t0);
+	fprintf(stderr,"\n\033[4mTransfer time=%ld seconds\033[0m\n",t1-t0);
 
 	return 0;
 }

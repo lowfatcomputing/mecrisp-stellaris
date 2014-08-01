@@ -29,6 +29,7 @@ $400CC021 constant DAC0_C0     \ DAC Control Register
   $40 constant DAC_C0_DACRFS              \ DAC Reference Select
 $400CC022 constant DAC0_C1     \ DAC Control Register 1
   $1 constant DAC_C1_DACBFEN              \ DAC Reference Select
+  $80 constant DAC_C1_DMAEN              \ DAC Reference Select
 $400CC023 constant DAC0_C2     \ DAC Control Register 2
 
 : dac ( u -- )  \ 0 - 4095
@@ -38,8 +39,9 @@ $400CC023 constant DAC0_C2     \ DAC Control Register 2
 : +dac ( -- ) \ dac0 init
   SIM_SCGC2_DAC0              SIM_SCGC2 bis!
 
-  DAC_C1_DACBFEN                DAC0_C1 c!
+\  DAC_C1_DACBFEN                DAC0_C1 c! \ Disable for DMA
   DAC_C0_DACEN DAC_C0_DACRFS or DAC0_C0 c!
   0 dac
  ;
+
 
