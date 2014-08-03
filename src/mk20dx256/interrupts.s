@@ -71,12 +71,12 @@ interrupt portd
 interrupt porte
 interrupt UART0S
 interrupt UART0E
-interrupt pdb
+@interrupt pdb
 @interrupt dma_ch0 
 @interrupt dma_ch1 
 @interrupt dma_ch2 
 @interrupt dma_ch3 
-interrupt dma_ch4
+@interrupt dma_ch4
 @interrupt dma_ch5 
 @interrupt dma_ch6 
 @interrupt dma_ch7 

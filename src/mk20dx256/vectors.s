@@ -52,8 +52,8 @@
 .word nullhandler+1  @ DMA Channel 1 Transfer Complete and Error
 .word nullhandler+1  @ DMA Channel 2 Transfer Complete and Error
 .word nullhandler+1  @ DMA Channel 3 Transfer Complete and Error
-@.word nullhandler+1  @ DMA Channel 4 Transfer Complete and Error
-.word irq_vektor_dma_ch4+1  @ DMA Channel 4 Transfer Complete and Error
+@.word irq_vektor_dma_ch4+1  @ DMA Channel 4 Transfer Complete and Error
+.word nullhandler+1  @ DMA Channel 4 Transfer Complete and Error
 @.word irq_vektor_dma_ch5+1  @ DMA Channel 5 Transfer Complete and Error
 .word nullhandler+1  @ DMA Channel 5 Transfer Complete and Error
 .word nullhandler+1  @ DMA Channel 6 Transfer Complete and Error
@@ -122,7 +122,7 @@
 .word nullhandler+1 @ 69 PIT channel 1
 .word nullhandler+1 @ 70 PIT channel 2
 .word nullhandler+1 @ 71 PIT channel 3
-.word irq_vektor_pdb+1 @ 72 PDB
+@.word irq_vektor_pdb+1 @ 72 PDB
 .word nullhandler+1 @ 72 PDB
 .word nullhandler+1 @ 73 USB OTG
 .word nullhandler+1 @ 74 USB Charger detect
@@ -165,10 +165,10 @@
 @ Start for real code !
 
 .org 0x410
-@@ -----------------------------------------------------------------------------
-@unhandled:
-@  push {lr} 
-@  writeln "Unhandled Interrupt !"
-@  pop {pc}
-@@ -----------------------------------------------------------------------------
-@
+@ -----------------------------------------------------------------------------
+unhandled:
+  push {lr} 
+  writeln "Unhandled Interrupt !"
+  pop {pc}
+@ -----------------------------------------------------------------------------
+
