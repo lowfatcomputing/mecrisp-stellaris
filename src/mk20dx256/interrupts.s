@@ -33,12 +33,15 @@
  @ cpsid f @ Fehler-Handler
   bx lr
 
+
+@ FIXME
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_inline, "ipsr" @ ( -- int ) Read IPSR
 @ ----------------------------------------------------------------------------- 
   pushdatos
   mrs tos, ipsr
   bx lr
+
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_visible, "nop" @ ( -- ) Handler für unbenutzte Interrupts
@@ -52,7 +55,7 @@ nop_vektor:                     @        Handler for unused Interrupts
 @ All interrupt handlers work the same way and are generated with a macro:
 @------------------------------------------------------------------------------
 interrupt systick
-initinterrupt fault, nullhandler/*, unhandled*/
+initinterrupt fault, nullhandler/*, unhandled */
 
 
 interrupt adc0
@@ -87,8 +90,6 @@ interrupt dma_ch4
 @interrupt dma_ch15
 @interrupt dma_ch16
 
-
-@------------------------------------------------------------------------------
 
 /*
   Zu den Registern, die gesichert werden müssen:  Register map and interrupt entry push sequence:

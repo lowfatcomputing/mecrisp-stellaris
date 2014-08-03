@@ -216,28 +216,28 @@ irq_vektor_\Name:
 @ Flag definitions
 @ -----------------------------------------------------------------------------
 
-.equ Flag_invisible,  0xFFFFFFFF
+.equ Flag_invisible,  0xFFFF
 
-.equ Flag_visible,    0x00000000
-.equ Flag_immediate,  0x00000010
-.equ Flag_inline,     0x00000020
+.equ Flag_visible,    0x0000
+.equ Flag_immediate,  0x0010
+.equ Flag_inline,     0x0020
 .equ Flag_immediate_compileonly, 0x30 @ Immediate + Inline
 
-.equ Flag_ramallot,   0x00000080      @ Ramallot means that RAM is reserved and initialised by catchflashpointers for this definition on startup
+.equ Flag_ramallot,   0x0080      @ Ramallot means that RAM is reserved and initialised by catchflashpointers for this definition on startup
 .equ Flag_variable,   Flag_ramallot|1 @ How many 32 bit locations shall be reserved ?
 .equ Flag_2variable,  Flag_ramallot|2
 
-.equ Flag_foldable,   0x00000040 @ Foldable when given number of constants are available.
-.equ Flag_foldable_0, 0x00000040
-.equ Flag_foldable_1, 0x00000041
-.equ Flag_foldable_2, 0x00000042
-.equ Flag_foldable_3, 0x00000043
-.equ Flag_foldable_4, 0x00000044
-.equ Flag_foldable_5, 0x00000045
-.equ Flag_foldable_6, 0x00000046
-.equ Flag_foldable_7, 0x00000047
+.equ Flag_foldable,   0x0040 @ Foldable when given number of constants are available.
+.equ Flag_foldable_0, 0x0040
+.equ Flag_foldable_1, 0x0041
+.equ Flag_foldable_2, 0x0042
+.equ Flag_foldable_3, 0x0043
+.equ Flag_foldable_4, 0x0044
+.equ Flag_foldable_5, 0x0045
+.equ Flag_foldable_6, 0x0046
+.equ Flag_foldable_7, 0x0047
 
-.equ Flag_opcodable,  0x00000008
+.equ Flag_opcodable,  0x0008
 
 @ Of course, some of those cases are not foldable at all. But this way their bitmask is constructed.
 
