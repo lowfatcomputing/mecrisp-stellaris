@@ -81,42 +81,42 @@ CoreDictionaryAnfang: @ Dictionary-Einsprungpunkt setzen
 @ Include the complete Mecrisp-Stellaris core
 @ -----------------------------------------------------------------------------
 
-  .include "../common/double.s"
-  .include "../common/stackjugglers.s" 
-  .include "../common/logic.s"
-  .include "../common/comparisions.s"
+  .include "common/double.s"
+  .include "common/stackjugglers.s" 
+  .include "common/logic.s"
+  .include "common/comparisions.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/memory.s"
+  .include "common/memory.s"
   .include "flash.s"
   .ltorg @ Mal wieder Konstanten schreiben
 
   .ifdef emulated16bitflashwrites
-  .include "../common/hflashstoreemulation.s"
+  .include "common/hflashstoreemulation.s"
   .ltorg @ Mal wieder Konstanten schreiben
   .endif
 
-  .include "../common/calculations.s"
+  .include "common/calculations.s"
   .ltorg @ Mal wieder Konstanten schreiben
   .include "terminal.s"
-  .include "../common/query.s"
-  .include "../common/strings.s"
-  .include "../common/deepinsight.s"
+  .include "common/query.s"
+  .include "common/strings.s"
+  .include "common/deepinsight.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/compiler.s"
+  .include "common/compiler.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/compiler-flash.s"
+  .include "common/compiler-flash.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/controlstructures.s"
+  .include "common/controlstructures.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/doloop.s"
+  .include "common/doloop.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/case.s"
+  .include "common/case.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/token.s"
+  .include "common/token.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/numberstrings.s"
+  .include "common/numberstrings.s"
   .ltorg @ Mal wieder Konstanten schreiben
-  .include "../common/interpreter.s"
+  .include "common/interpreter.s"
   .ltorg @ Mal wieder Konstanten schreiben
   .include "interrupts.s" @ You have to change interrupt handlers for Porting !
 

@@ -70,14 +70,37 @@ $400BB06C constant ADC1_CLM0  \ ADC Minus-Side General Calibration Value Registe
  ;
 
 : adc_averaging_set ( num_avgs=0|4|8|16|32 adc_num=0|1|2  -- )
-
+  $7 ADC0_SC3 bis! \ SC3[AVGE]=1 and SC3[AVGS]=11 for an average of 32SC3[AVGE]=1 and SC3[AVGS]=11 for an average of 32
  ;
 
-: adc_calibrate
+: adc_clk_set \ Set ADC clock frequency f ADCK less than or equal to 4 MHz
+  1 3 lshift ADC0_CFG2 bis!
+  $3 ADC0_CFG1 bis! \ ADACK set
+  \ TODO clk divider???
+ ;
+
+
+
+: +adc_calibrate
+  \ Configure calibration
+  adc_averaging_set
+  adc_clk_set
+  \ V_REFH=V_DDA
+  
+  \ Initiate calibration
+  1 7 lshift SC3 bis! \ begin calibration
+ ;
+
+: -adc_calibrate
  ;
 
 \ p692 of K20P64M72SF1RM.pdf (datasheet)
 : adc_init ( 0|1|2 -- )
   \ Calibrate ADC
  ;
+
+: adc@
+ ;
+
+
 

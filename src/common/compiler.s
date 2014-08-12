@@ -20,9 +20,9 @@
 @ The compiler - parts that are the same for Flash and for Ram.
 
   .ifdef m0core
-  .include "../common/codegenerator-m0.s"
+  .include "common/codegenerator-m0.s"
   .else
-  .include "../common/codegenerator-m3.s"
+  .include "common/codegenerator-m3.s"
   .endif
 
 @------------------------------------------------------------------------------

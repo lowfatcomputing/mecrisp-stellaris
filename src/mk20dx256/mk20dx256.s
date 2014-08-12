@@ -32,7 +32,7 @@
 @ Start with some essential macro definitions
 @ -----------------------------------------------------------------------------
 
-.include "../common/datastackandmacros.s"
+.include "common/datastackandmacros.s"
 
 @ -----------------------------------------------------------------------------
 @ Speicherkarte für Flash und RAM
@@ -66,7 +66,7 @@
 @ Include the Forth core of Mecrisp-Stellaris
 @ -----------------------------------------------------------------------------
 
-.include "../common/forth-core.s"
+.include "common/forth-core.s"
 
 @ -----------------------------------------------------------------------------
 Reset: @ Einsprung zu Beginn
@@ -92,7 +92,7 @@ Reset: @ Einsprung zu Beginn
 
 Restart:
    @ Catch the pointers for Flash dictionary
-   .include "../common/catchflashpointers.s"
+   .include "common/catchflashpointers.s"
 
    welcome " by Matthias Koch"
    @ You do not have to include the below ... my contributions were minor
@@ -100,4 +100,4 @@ Restart:
    @ Dear Mark, you created a whole new target ! My congratulations - and of course you get credits for this :-) Matthias
 
    @ Ready to fly !
-   .include "../common/boot.s"
+   .include "common/boot.s"
