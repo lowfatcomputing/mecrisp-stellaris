@@ -1,3 +1,3 @@
 all:
-	make -C .. nrf51822/nrf51822.bin
+	make -C .. nrf51822/nrf51822.hex
 
