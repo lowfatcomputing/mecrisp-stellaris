@@ -43,4 +43,4 @@ me4up:
 serial: $(TOP)me4up
 	picocom --send-cmd "$(TOP)me4up" --omap delbs --emap bsdel --imap lfcrlf -l -b 115200 -p n -d 8 $(TERMPORT)
 
-.PHONY: clean me4up serial
+.PHONY: clean serial

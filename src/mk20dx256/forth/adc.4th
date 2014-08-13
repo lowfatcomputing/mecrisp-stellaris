@@ -1,5 +1,8 @@
 \ adc.4th -- Analog-to-Digital Converter
 
+
+$4004803C constant SIM_SCGC6
+
 $4003B000 constant ADC0_SC1A  \ ADC Status and Control Registers 1
 $4003B004 constant ADC0_SC1B  \ ADC Status and Control Registers 1
 $4003B008 constant ADC0_CFG1  \ ADC Configuration Register 1
@@ -57,50 +60,46 @@ $400BB064 constant ADC1_CLM2  \ ADC Minus-Side General Calibration Value Registe
 $400BB068 constant ADC1_CLM1  \ ADC Minus-Side General Calibration Value Register
 $400BB06C constant ADC1_CLM0  \ ADC Minus-Side General Calibration Value Register
 
-0 constant ADC_0
-1 constant ADC_1
-2 constant ADC_BOTH
+: init-adc ( -- )
+  1 27 lshift SIM_SCGC6 bis! \ Enable clock for ADC
 
+  3 5 lshift 
+  3 2 lshift or ADC0_CFG1 ! \ 16 Bit Single Ended, Clock divider /8 --> 20.97 MHz / 8 = 2.62 MHz
+  7             ADC0_SC3  ! \ Average 32 samples
 
+  $80 ADC0_SC3 bis! \ Start calibration
+  begin $80 ADC0_SC3 bit@ not until \ Wait for calibration to be completed
+  $40 ADC0_SC3 bit@ if ." ADC calibration failed." then
 
-: adc_ref_set ( num_avgs=0|4|8|16|32 adc_num=0|1|2  -- )
- ;
+  $8 ADC0_SC3 bis! \ Enable continuous conversion
 
-: adc_readres_set ( num_avgs=0|4|8|16|32 adc_num=0|1|2  -- )
- ;
+  $4003B034 @
+  $4003B038 @ +
+  $4003B03C @ +
+  $4003B040 @ +
+  $4003B044 @ +
+  $4003B048 @ +
+  $4003B04C @ +  2/ $FFFF and $8000 or ADC0_PG !
 
-: adc_averaging_set ( num_avgs=0|4|8|16|32 adc_num=0|1|2  -- )
-  $7 ADC0_SC3 bis! \ SC3[AVGE]=1 and SC3[AVGS]=11 for an average of 32SC3[AVGE]=1 and SC3[AVGS]=11 for an average of 32
- ;
+  $4003B054 @
+  $4003B058 @ +
+  $4003B05C @ +
+  $4003B060 @ +
+  $4003B064 @ +
+  $4003B068 @ +
+  $4003B06C @ +  2/ $FFFF and $8000 or ADC0_MG !
 
-: adc_clk_set \ Set ADC clock frequency f ADCK less than or equal to 4 MHz
-  1 3 lshift ADC0_CFG2 bis!
-  $3 ADC0_CFG1 bis! \ ADACK set
-  \ TODO clk divider???
- ;
+  $4 ADC0_SC3 cbic! \ disable HW avg.
+;
 
+create APINs 5 , 14 , 8 , 9 , 13 , 12 , 6 , 7 , 15 , 4 , 0 , 19 , 3 , 21 ,
+             \ 26 , 22 , 23 , 27 , 29 , 30 ,
 
-
-: +adc_calibrate
-  \ Configure calibration
-  adc_averaging_set
-  adc_clk_set
-  \ V_REFH=V_DDA
-  
-  \ Initiate calibration
-  1 7 lshift SC3 bis! \ begin calibration
- ;
-
-: -adc_calibrate
- ;
-
-\ p692 of K20P64M72SF1RM.pdf (datasheet)
-: adc_init ( 0|1|2 -- )
-  \ Calibrate ADC
- ;
-
-: adc@
- ;
-
-
+: analog ( pin -- value )
+  cells APINs + @ \ pin -> channel A0-A13
+  $1F and ADC0_SC1A ! \ Select channel
+  \ 1 5 lshift ADC0_SC1A cbis!
+  begin $80 ADC0_SC1A bit@ until \ Wait for conversion completed
+  ADC0_RA @ \ Read result
+;
 
