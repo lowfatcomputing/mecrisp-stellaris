@@ -20,65 +20,42 @@
 @ Interruptvektortabelle
 @ -----------------------------------------------------------------------------
 
-.equ addresszero, . @ This is needed to circumvent address relocation issues.
-
-.word   returnstackanfang  @ 00: Stack top address
-.word   Reset+1            @ 01: Reset Vector  +1 wegen des Thumb-Einsprunges
-
-@ Gemeinsame Interruptvektortabelle: Common interrupt vector table:
-
-.word nullhandler+1   @ 02: The NMI handler
-.word nullhandler+1   @ 03: The hard fault handler
-.word 0               @ 04: The MPU fault handler
-.word 0               @ 05: Reserved
-.word 0               @ 06: Reserved
-.word 0               @ 07: Reserved
-.word 0               @ 08: Reserved
-.word 0               @ 09: Reserved
-.word 0               @ 10: Reserved
-.word nullhandler+1   @ 11: SVCall handler
-.word 0               @ 12: Reserved
-.word 0               @ 13: Reserved
-.word nullhandler+1   @ 14: The PendSV handler
-.word irq_vektor_systick+1   @ 15: The SysTick handler
-
-@ Bis hierhin ist die Interruptvektortabelle bei allen ARM Cortex M0 Chips gleich.
-@ Danach geht es mit den Besonderheiten eines jeden Chips los.
+.include "../common/vectors-common.s"
 
 @ Special interrupt handlers for this particular chip:
 
-.word nullhandler+1 @ DMA Channel 0 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 1 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 2 Transfer Complete and Error
-.word nullhandler+1 @ DMA Channel 3 Transfer Complete and Error
-.word nullhandler+1 @ Normal Interrupt
-.word nullhandler+1 @ FTFL Interrupt
-.word nullhandler+1 @ PMC Interrupt
-.word nullhandler+1 @ Low Leakage Wake-up
-.word nullhandler+1 @ I2C0 interrupt
-.word nullhandler+1 @ I2C1 interrupt
-.word nullhandler+1 @ SPI0 Interrupt
-.word nullhandler+1 @ SPI1 Interrupt
-.word nullhandler+1 @ UART0 Status and Error interrupt
-.word nullhandler+1 @ UART1 Status and Error interrupt
-.word nullhandler+1 @ UART2 Status and Error interrupt
-.word irq_vektor_adc+1 @ ADC0 interrupt
-.word irq_vektor_cmp+1 @ CMP0 interrupt
-.word nullhandler+1 @ FTM0 fault, overflow and channels interrupt
-.word nullhandler+1 @ FTM1 fault, overflow and channels interrupt
-.word nullhandler+1 @ FTM2 fault, overflow and channels interrupt
-.word nullhandler+1 @ RTC Alarm interrupt
-.word nullhandler+1 @ RTC Seconds interrupt
-.word nullhandler+1 @ PIT timer all channels interrupt
-.word nullhandler+1 @ Reserved interrupt 39/23
-.word nullhandler+1 @ USB interrupt
-.word irq_vektor_dac+1 @ DAC0 interrupt
-.word nullhandler+1 @ TSI0 Interrupt
-.word nullhandler+1 @ MCG Interrupt
-.word nullhandler+1 @ LPTimer interrupt
-.word nullhandler+1 @ Reserved interrupt 45/29
-.word irq_vektor_porta+1 @ Port A interrupt
-.word irq_vektor_portd+1 @ Port D interrupt
+.word nullhandler+1 @ Position 00: DMA Channel 0 Transfer Complete and Error
+.word nullhandler+1 @ Position 01: DMA Channel 1 Transfer Complete and Error
+.word nullhandler+1 @ Position 02: DMA Channel 2 Transfer Complete and Error
+.word nullhandler+1 @ Position 03: DMA Channel 3 Transfer Complete and Error
+.word nullhandler+1 @ Position 04: Normal Interrupt
+.word nullhandler+1 @ Position 05: FTFL Interrupt
+.word nullhandler+1 @ Position 06: PMC Interrupt
+.word nullhandler+1 @ Position 07: Low Leakage Wake-up
+.word nullhandler+1 @ Position 08: I2C0 interrupt
+.word nullhandler+1 @ Position 09: I2C1 interrupt
+.word nullhandler+1 @ Position 10: SPI0 Interrupt
+.word nullhandler+1 @ Position 11: SPI1 Interrupt
+.word nullhandler+1 @ Position 12: UART0 Status and Error interrupt
+.word nullhandler+1 @ Position 13: UART1 Status and Error interrupt
+.word nullhandler+1 @ Position 14: UART2 Status and Error interrupt
+.word irq_vektor_adc+1 @ Position 15: ADC0 interrupt
+.word irq_vektor_cmp+1 @ Position 16: CMP0 interrupt
+.word nullhandler+1 @ Position 17: FTM0 fault, overflow and channels interrupt
+.word nullhandler+1 @ Position 18: FTM1 fault, overflow and channels interrupt
+.word nullhandler+1 @ Position 19: FTM2 fault, overflow and channels interrupt
+.word nullhandler+1 @ Position 20: RTC Alarm interrupt
+.word nullhandler+1 @ Position 21: RTC Seconds interrupt
+.word nullhandler+1 @ Position 22: PIT timer all channels interrupt
+.word nullhandler+1 @ Position 23: Reserved interrupt 39/23
+.word nullhandler+1 @ Position 24: USB interrupt
+.word irq_vektor_dac+1 @ Position 25: DAC0 interrupt
+.word nullhandler+1 @ Position 26: TSI0 Interrupt
+.word nullhandler+1 @ Position 27: MCG Interrupt
+.word nullhandler+1 @ Position 28: LPTimer interrupt
+.word nullhandler+1 @ Position 29: Reserved interrupt 45/29
+.word irq_vektor_porta+1 @ Position 30: Port A interrupt
+.word irq_vektor_portd+1 @ Position 31: Port D interrupt
 
 @ See page 53 in manual
 
@@ -94,9 +71,4 @@
 
 @ Start for real code !
 
-@ -----------------------------------------------------------------------------
-unhandled:
-  push {lr} 
-  writeln "Unhandled Interrupt !"
-  pop {pc}
 @ -----------------------------------------------------------------------------

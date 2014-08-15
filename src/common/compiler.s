@@ -20,9 +20,9 @@
 @ The compiler - parts that are the same for Flash and for Ram.
 
   .ifdef m0core
-  .include "common/codegenerator-m0.s"
+  .include "../common/codegenerator-m0.s"
   .else
-  .include "common/codegenerator-m3.s"
+  .include "../common/codegenerator-m3.s"
   .endif
 
 @------------------------------------------------------------------------------
@@ -53,15 +53,13 @@ tick: @ Nimmt das nächste Token aus dem Puffer, suche es und gibt den Einsprung
   popda r0 @ Flags holen  Fetch Flags
   @ ( Einsprungadresse )  
 
-1:movs r1, #Flag_immediate  @ In case definition is immediate: Compile a call to its address.
+1:movs r1, #Flag_immediate & ~Flag_visible @ In case definition is immediate: Compile a call to its address.
   ands r1, r0
-  cmp r1, #Flag_immediate
-  beq 4f
+  bne 4f
 
-2:movs r1, #Flag_inline    @ In case definition is inline: Compile entry point as literal and a call to inline, afterwards.
+2:movs r1, #Flag_inline & ~Flag_visible    @ In case definition is inline: Compile entry point as literal and a call to inline, afterwards.
   ands r1, r0
-  cmp r1, #Flag_inline
-  bne 3f                             @ ( Einsprungadresse )
+  beq 3f                             @ ( Einsprungadresse )
     bl literalkomma                  @ Einsprungadresse als Konstante einkompilieren
     pushdatos
     ldr tos, =inlinekomma
@@ -192,7 +190,7 @@ fadenende_einsprungadresse: @ Kleines Helferlein spart Platz
 
   .ifdef emulated16bitflashwrites
   @ If 16-Bit Flash writes are emulated, the name length byte may not be set yet.
-  cmp r1, #0xFF
+  cmp r1, #erasedbyte
   bne 1f
   @ It is not set. That means that the length byte is in the Flash write buffer.
   @ Scan the buffer for the needed address !
@@ -297,68 +295,68 @@ execute:
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "immediate" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_immediate
+  pushdaconst Flag_immediate & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "inline" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_inline
+  pushdaconst Flag_inline & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "compileonly" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_immediate_compileonly
+  pushdaconst Flag_immediate_compileonly & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "0-foldable" @ ( -- )
 setze_faltbarflag:
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_0
+  pushdaconst Flag_foldable_0 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "1-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_1
+  pushdaconst Flag_foldable_1 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "2-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_2
+  pushdaconst Flag_foldable_2 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "3-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_3
+  pushdaconst Flag_foldable_3 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "4-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_4
+  pushdaconst Flag_foldable_4 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "5-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_5
+  pushdaconst Flag_foldable_5 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "6-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_6
+  pushdaconst Flag_foldable_6 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_immediate, "7-foldable" @ ( -- )
 @ -----------------------------------------------------------------------------
-  pushdaconst Flag_foldable_7
+  pushdaconst Flag_foldable_7 & ~Flag_visible
   b.n setflags
 
 @ -----------------------------------------------------------------------------

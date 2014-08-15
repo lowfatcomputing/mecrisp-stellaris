@@ -20,28 +20,7 @@
 @ Interruptvektortabelle
 @ -----------------------------------------------------------------------------
 
-.word   returnstackanfang  @ 00: Stack top address
-.word   Reset+1            @ 01: Reset Vector  +1 wegen des Thumb-Einsprunges
-
-@ Gemeinsame Interruptvektortabelle: Common interrupt vector table:
-
-.word nullhandler+1   @ 02: The NMI handler
-.word nullhandler+1   @ 03: The hard fault handler
-.word nullhandler+1   @ 04: The MPU fault handler
-.word nullhandler+1   @ 05: The bus fault handler
-.word nullhandler+1   @ 06: The usage fault handler
-.word 0               @ 07: Reserved
-.word 0               @ 08: Reserved
-.word 0               @ 09: Reserved
-.word 0               @ 10: Reserved
-.word nullhandler+1   @ 11: SVCall handler
-.word nullhandler+1   @ 12: Debug monitor handler
-.word 0               @ 13: Reserved
-.word nullhandler+1   @ 14: The PendSV handler
-.word irq_vektor_systick+1   @ 15: The SysTick handler
-
-@ Bis hierhin ist die Interruptvektortabelle bei allen ARM Cortex Chips gleich.
-@ Danach geht es mit den Besonderheiten eines jeden Chips los.
+.include "../common/vectors-common.s"
 
 @ Special interrupt handlers for this particular chip:
 
@@ -114,12 +93,72 @@
 .word irq_vektor_portk+1   @ 68: GPIO Port K
 .word irq_vektor_portl+1   @ 69: GPIO Port L
 
-@ ... Das geht noch viel weiter ! Erstmal jedoch eine Grundausstattung an Bord. Siehe Datenblatt Seite 114.
+.word nullhandler+1   @ 70:
+.word nullhandler+1   @ 71:
+.word nullhandler+1   @ 72:
+.word nullhandler+1   @ 73:
+.word nullhandler+1   @ 74:
+.word nullhandler+1   @ 75:
+.word nullhandler+1   @ 76:
+.word nullhandler+1   @ 77:
+.word nullhandler+1   @ 78:
+.word nullhandler+1   @ 79:
+.word nullhandler+1   @ 80:
+.word nullhandler+1   @ 81:
+.word nullhandler+1   @ 82:
+.word nullhandler+1   @ 83:
 
+.word 0  @ 84: Reserved
+.word 0  @ 85: Reserved
 
-@ -----------------------------------------------------------------------------
-unhandled:
-  push {lr} 
-  writeln "Unhandled Interrupt !"
-  pop {pc}
+.word nullhandler+1   @ 86:
+.word nullhandler+1   @ 87:
+.word nullhandler+1   @ 88:
+.word nullhandler+1   @ 89:
+
+.word 0  @ 90: Reserved
+
+.word nullhandler+1   @ 91:
+.word nullhandler+1   @ 92:
+.word nullhandler+1   @ 93:
+.word nullhandler+1   @ 94:
+.word nullhandler+1   @ 95:
+.word nullhandler+1   @ 96:
+.word nullhandler+1   @ 97:
+.word nullhandler+1   @ 98:
+.word nullhandler+1   @ 99:
+.word nullhandler+1   @ 100:
+.word nullhandler+1   @ 101:
+.word nullhandler+1   @ 102:
+.word nullhandler+1   @ 103:
+.word nullhandler+1   @ 104:
+.word nullhandler+1   @ 105:
+.word nullhandler+1   @ 106:
+.word nullhandler+1   @ 107:
+
+.word 0  @ 108: Reserved
+.word 0  @ 109: Reserved
+.word 0  @ 110: Reserved
+.word 0  @ 111: Reserved
+.word 0  @ 112: Reserved
+.word 0  @ 113: Reserved
+
+.word nullhandler+1   @ 114:
+.word nullhandler+1   @ 115:
+.word nullhandler+1   @ 116:
+.word nullhandler+1   @ 117:
+.word nullhandler+1   @ 118:
+.word nullhandler+1   @ 119:
+
+.word 0  @ 120: Reserved
+.word 0  @ 121: Reserved
+.word 0  @ 122: Reserved
+.word 0  @ 123: Reserved
+.word 0  @ 124: Reserved
+
+.word nullhandler+1   @ 125:
+.word nullhandler+1   @ 126:
+
+@ 127-129 reserved, space can be used for core instead.
+
 @ -----------------------------------------------------------------------------

@@ -20,31 +20,7 @@
 @ Interruptvektortabelle
 @ -----------------------------------------------------------------------------
 
-.word   returnstackanfang  @ 00: Stack top address
-.word   Reset+1            @ 01: Reset Vector  +1 wegen des Thumb-Einsprunges
-
-@ Gemeinsame Interruptvektortabelle: Common interrupt vector table:
-
-.word nullhandler+1   @ 02: The NMI handler
-.word nullhandler+1   @ 03: The hard fault handler
-.word nullhandler+1   @ 04: The MPU fault handler
-.word nullhandler+1   @ 05: The bus fault handler
-.word nullhandler+1   @ 06: The usage fault handler
-.word 0               @ 07: Reserved
-.word 0               @ 08: Reserved
-.word 0               @ 09: Reserved
-.word 0               @ 10: Reserved
-.word nullhandler+1   @ 11: SVCall handler
-.word nullhandler+1   @ 12: Debug monitor handler
-.word 0               @ 13: Reserved
-.word nullhandler+1   @ 14: The PendSV handler
-.word irq_vektor_systick+1   @ 15: The SysTick handler
-
-@ Bis hierhin ist die Interruptvektortabelle bei allen ARM Cortex Chips gleich.
-@ Danach geht es mit den Besonderheiten eines jeden Chips los.
-
-@ ... Das geht noch viel weiter !
-@ Familienhandbuch Seite 130
+.include "../common/vectors-common.s"
 
 @ Special interrupt handlers for this particular chip:
 
@@ -68,10 +44,50 @@
 .word nullhandler+1 @ Position 17: DMA1 Stream 6
 .word irq_vektor_adc+1 @ Position 18: ADC global interrupts
 
+.word 0  @ 19: Reserved
+.word 0  @ 20: Reserved
+.word 0  @ 21: Reserved
+.word 0  @ 22: Reserved
 
-@ -----------------------------------------------------------------------------
-unhandled:
-  push {lr} 
-  writeln "Unhandled Interrupt !"
-  pop {pc}
+.word nullhandler+1 @ Position 23:
+.word nullhandler+1 @ Position 24:
+.word nullhandler+1 @ Position 25:
+.word nullhandler+1 @ Position 26:
+.word nullhandler+1 @ Position 27:
+.word nullhandler+1 @ Position 28:
+.word nullhandler+1 @ Position 29:
+.word nullhandler+1 @ Position 30:
+.word nullhandler+1 @ Position 31:
+.word nullhandler+1 @ Position 32:
+.word nullhandler+1 @ Position 33:
+.word nullhandler+1 @ Position 34:
+.word nullhandler+1 @ Position 35:
+.word nullhandler+1 @ Position 36:
+.word nullhandler+1 @ Position 37:
+.word nullhandler+1 @ Position 38:
+.word nullhandler+1 @ Position 39:
+.word nullhandler+1 @ Position 40:
+.word nullhandler+1 @ Position 41:
+.word nullhandler+1 @ Position 42:
+.word nullhandler+1 @ Position 43:
+.word nullhandler+1 @ Position 44:
+.word nullhandler+1 @ Position 45:
+
+.word 0  @ 46: Reserved
+.word 0  @ 47: Reserved
+.word nullhandler+1 @ Position 48:
+.word 0  @ 49: Reserved
+
+.word nullhandler+1 @ Position 50:
+.word nullhandler+1 @ Position 51:
+.word nullhandler+1 @ Position 52:
+.word nullhandler+1 @ Position 53:
+.word nullhandler+1 @ Position 54:
+.word nullhandler+1 @ Position 55:
+.word nullhandler+1 @ Position 56:
+.word nullhandler+1 @ Position 57:
+.word nullhandler+1 @ Position 58:
+.word nullhandler+1 @ Position 59:
+.word nullhandler+1 @ Position 60:
+
 @ -----------------------------------------------------------------------------

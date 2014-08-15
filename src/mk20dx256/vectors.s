@@ -20,46 +20,20 @@
 @ Interruptvektortabelle
 @ -----------------------------------------------------------------------------
 
-.equ addresszero, . @ This is needed to circumvent address relocation issues.
+.include "../common/vectors-common.s"
 
-.word   returnstackanfang  @ 00: Stack top address
-.word   Reset+1            @ 01: Reset Vector  +1 wegen des Thumb-Einsprunges (because of thumb2 mode)
-
-@ Gemeinsame Interruptvektortabelle: Common interrupt vector table:
-
-.word nullhandler+1   @ 02: The NMI handler
-.word nullhandler+1   @ 03: The hard fault handler
-.word nullhandler+1   @ 04: The MPU fault handler
-.word nullhandler+1   @ 05: ARM: Bus Fault
-.word nullhandler+1   @ 06: ARM: Usage Fault
-.word 0               @ 07: Reserved
-.word 0               @ 08: Reserved
-.word 0               @ 09: Reserved
-.word 0               @ 10: Reserved
-.word nullhandler+1   @ 11: SVCall handler
-.word nullhandler+1   @ 12: Debug Monitor
-.word 0               @ 13: Reserved
-.word nullhandler+1   @ 14: The PendSV handler
-.word irq_vektor_systick+1   @ 15: The SysTick handler
-
-@ Bis hierhin ist die Interruptvektortabelle bei allen ARM Cortex M0 Chips gleich.
-@ Danach geht es mit den Besonderheiten eines jeden Chips los.
-
-@ Up to this point the interrupt vector is the same forall ARM Cortex M0 chips
 @ Special interrupt handlers for this particular chip:
 
-.word nullhandler+1  @ DMA Channel 0 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 1 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 2 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 3 Transfer Complete and Error
-@.word irq_vektor_dma_ch4+1  @ DMA Channel 4 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 4 Transfer Complete and Error
-@.word irq_vektor_dma_ch5+1  @ DMA Channel 5 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 5 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 6 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 7 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 8 Transfer Complete and Error
-.word nullhandler+1  @ DMA Channel 9 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 0 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 1 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 2 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 3 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 4 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 5 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 6 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 7 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 8 Transfer Complete and Error
+.word nullhandler+1 @ DMA Channel 9 Transfer Complete and Error
 .word nullhandler+1 @ DMA Channel 10 Transfer Complete and Error
 .word nullhandler+1 @ DMA Channel 11 Transfer Complete and Error
 .word nullhandler+1 @ DMA Channel 12 Transfer Complete and Error
@@ -87,13 +61,13 @@
 .word nullhandler+1 @ 34 CAN0 Wake up
 .word nullhandler+1 @ 35 I2S0 Transmit
 .word nullhandler+1 @ 36 I2S0 Receive
-.word 0             @ 37 Reserved
-.word 0             @ 38 Reserved
-.word 0             @ 39 Reserved
-.word 0             @ 40 Reserved
-.word 0             @ 41 Reserved
-.word 0             @ 42 Reserved
-.word 0             @ 43 Reserved
+.word 0	            @ 37 Reserved
+.word 0	            @ 38 Reserved
+.word 0	            @ 39 Reserved
+.word 0	            @ 40 Reserved
+.word 0	            @ 41 Reserved
+.word 0	            @ 42 Reserved
+.word 0	            @ 43 Reserved
 .word nullhandler+1 @ 44 UART0 LON sources
 .word irq_vektor_UART0S+1 @ 45 UART0 Status sources
 .word irq_vektor_UART0E+1 @ 46 UART0 Error sources
@@ -101,12 +75,12 @@
 .word nullhandler+1 @ 48 UART1 Error sources
 .word nullhandler+1 @ 49 UART2 Status
 .word nullhandler+1 @ 50 UART2 Error
-.word 0             @ 51 Reserved
-.word 0             @ 52 Reserved
-.word 0             @ 53 Reserved
-.word 0             @ 54 Reserved
-.word 0             @ 55 Reserved
-.word 0             @ 56 Reserved
+.word 0	            @ 51 Reserved
+.word 0	            @ 52 Reserved
+.word 0	            @ 53 Reserved
+.word 0	            @ 54 Reserved
+.word 0	            @ 55 Reserved
+.word 0	            @ 56 Reserved
 .word irq_vektor_adc0+1 @ 57 ADC0 interrupt
 .word irq_vektor_adc1+1 @ 58 ADC1 interrupt
 .word irq_vektor_cmp0+1 @ 59 CMP0 interrutp
@@ -122,18 +96,17 @@
 .word nullhandler+1 @ 69 PIT channel 1
 .word nullhandler+1 @ 70 PIT channel 2
 .word nullhandler+1 @ 71 PIT channel 3
-@.word irq_vektor_pdb+1 @ 72 PDB
 .word nullhandler+1 @ 72 PDB
 .word nullhandler+1 @ 73 USB OTG
 .word nullhandler+1 @ 74 USB Charger detect
-.word 0             @ 75 Reserved
-.word 0             @ 76 Reserved
-.word 0             @ 77 Reserved
-.word 0             @ 78 Reserved
-.word 0             @ 79 Reserved
-.word 0             @ 80 Reserved
+.word 0	            @ 75 Reserved
+.word 0	            @ 76 Reserved
+.word 0	            @ 77 Reserved
+.word 0	            @ 78 Reserved
+.word 0	            @ 79 Reserved
+.word 0	            @ 80 Reserved
 .word irq_vektor_dac+1 @ 81 DAC0 interrupt
-.word 0             @ 82 Reserved
+.word 0	            @ 82 Reserved
 .word nullhandler+1 @ 83 TSI Interrupt
 .word nullhandler+1 @ 84 MCG Interrupt
 .word nullhandler+1 @ 85 Low Power PTimer interrupt
@@ -143,8 +116,8 @@
 .word irq_vektor_portc+1 @ 89 Port C interrupt
 .word irq_vektor_portd+1 @ 90 Port D interrupt
 .word irq_vektor_porte+1 @ 91 Port E interrupt
-.word 0             @ 92 Reserved
-.word 0             @ 93 Reserved
+.word 0	            @ 92 Reserved
+.word 0	            @ 93 Reserved
 .word nullhandler+1 @ 94 Reserved
 
 
@@ -166,9 +139,3 @@
 
 .org 0x410
 @ -----------------------------------------------------------------------------
-unhandled:
-  push {lr} 
-  writeln "Unhandled Interrupt !"
-  pop {pc}
-@ -----------------------------------------------------------------------------
-

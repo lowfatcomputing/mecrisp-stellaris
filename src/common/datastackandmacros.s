@@ -66,70 +66,6 @@
 tos .req r6
 psp .req r7
 
-
-@ -----------------------------------------------------------------------------
-@ Interrupt handler trampoline macro
-@ -----------------------------------------------------------------------------
-
-.macro interrupt Name
-
-@------------------------------------------------------------------------------
-  Wortbirne Flag_visible|Flag_variable, "irq-\Name" @ ( -- addr )
-  CoreVariable irq_hook_\Name
-@------------------------------------------------------------------------------  
-  pushdatos
-  ldr tos, =irq_hook_\Name
-  bx lr
-  .word nop_vektor  @ Startwert für unbelegte Interrupts   Start value for unused interrupts
-
-irq_vektor_\Name:
-  .ifdef m0core
-    ldr r0, =irq_hook_\Name
-  .else
-    movw r0, #:lower16:irq_hook_\Name
-    movt r0, #:upper16:irq_hook_\Name
-  .endif
-
-  ldr r0, [r0]  @ Cannot ldr to PC directly, as this would require bit 0 to be set accordingly.
-  mov pc, r0    @ No need to make bit[0] uneven as 16-bit Thumb "mov" to PC ignores bit 0.
-  @ Angesprungene Routine kehrt von selbst zurück...   Code returns itself
-
-@ 3.6.1 ARM-Thumb interworking
-@       Thumb interworking uses bit[0] on a write to the PC to determine the CPSR T bit. For 16-bit instructions,
-@       interworking behavior is as follows:
-@       *     ADD (4) and MOV (3) branch within Thumb state ignoring bit[0].
-
-@       For 32-bit instructions, interworking behavior is as follows:
-@       *     LDM and LDR support interworking using the value written to the PC.
-
-.endm
-
-
-.macro initinterrupt Name, Asmname, Routine
-
-@------------------------------------------------------------------------------
-  Wortbirne Flag_visible|Flag_variable, "irq-\Name" @ ( -- addr )
-  CoreVariable irq_hook_\Name
-@------------------------------------------------------------------------------  
-  pushdatos
-  ldr tos, =irq_hook_\Name
-  bx lr
-  .word \Routine  @ Startwert für unbelegte Interrupts   Start value for unused interrupts
-
-\Asmname:
-  .ifdef m0core
-    ldr r0, =irq_hook_\Name
-  .else
-    movw r0, #:lower16:irq_hook_\Name
-    movt r0, #:upper16:irq_hook_\Name
-  .endif
-
-  ldr r0, [r0]  @ Cannot ldr to PC directly, as this would require bit 0 to be set accordingly.
-  mov pc, r0    @ No need to make bit[0] uneven as 16-bit Thumb "mov" to PC ignores bit 0.
-  @ Angesprungene Routine kehrt von selbst zurück...   Code returns itself
-
-.endm
-
 @ -----------------------------------------------------------------------------
 @ Datenstack-Makros
 @ Macros for Datastack
@@ -211,33 +147,52 @@ irq_vektor_\Name:
   drop
 .endm
 
+  .ifdef erasedflashcontainszero
+    .equ erasedbyte, 0
+    .equ erasedhalfword, 0
+    .equ erasedword, 0
+
+    .equ writtenhalfword, 0xFFFF
+  .else
+    .equ erasedbyte,     0xFF
+    .equ erasedhalfword, 0xFFFF
+    .equ erasedword,     0xFFFFFFFF
+
+    .equ writtenhalfword, 0
+  .endif
+
 @ -----------------------------------------------------------------------------
 @ Flagdefinitionen
 @ Flag definitions
 @ -----------------------------------------------------------------------------
 
-.equ Flag_invisible,  0xFFFF
+.ifdef erasedflashcontainszero
+  .equ Flag_invisible,  0x0000  @ Erased Flash needs to give invisible Flags.
+  .equ Flag_visible,    0x8000
+.else
+  .equ Flag_invisible,  0xFFFF
+  .equ Flag_visible,    0x0000
+.endif
 
-.equ Flag_visible,    0x0000
-.equ Flag_immediate,  0x0010
-.equ Flag_inline,     0x0020
-.equ Flag_immediate_compileonly, 0x30 @ Immediate + Inline
+.equ Flag_immediate,  Flag_visible | 0x0010
+.equ Flag_inline,     Flag_visible | 0x0020
+.equ Flag_immediate_compileonly, Flag_visible | 0x0030 @ Immediate + Inline
 
-.equ Flag_ramallot,   0x0080      @ Ramallot means that RAM is reserved and initialised by catchflashpointers for this definition on startup
+.equ Flag_ramallot,   Flag_visible | 0x0080      @ Ramallot means that RAM is reserved and initialised by catchflashpointers for this definition on startup
 .equ Flag_variable,   Flag_ramallot|1 @ How many 32 bit locations shall be reserved ?
 .equ Flag_2variable,  Flag_ramallot|2
 
-.equ Flag_foldable,   0x0040 @ Foldable when given number of constants are available.
-.equ Flag_foldable_0, 0x0040
-.equ Flag_foldable_1, 0x0041
-.equ Flag_foldable_2, 0x0042
-.equ Flag_foldable_3, 0x0043
-.equ Flag_foldable_4, 0x0044
-.equ Flag_foldable_5, 0x0045
-.equ Flag_foldable_6, 0x0046
-.equ Flag_foldable_7, 0x0047
+.equ Flag_foldable,   Flag_visible | 0x0040 @ Foldable when given number of constants are available.
+.equ Flag_foldable_0, Flag_visible | 0x0040
+.equ Flag_foldable_1, Flag_visible | 0x0041
+.equ Flag_foldable_2, Flag_visible | 0x0042
+.equ Flag_foldable_3, Flag_visible | 0x0043
+.equ Flag_foldable_4, Flag_visible | 0x0044
+.equ Flag_foldable_5, Flag_visible | 0x0045
+.equ Flag_foldable_6, Flag_visible | 0x0046
+.equ Flag_foldable_7, Flag_visible | 0x0047
 
-.equ Flag_opcodable,  0x0008
+.equ Flag_opcodable,  Flag_visible | 0x0008
 
 @ Of course, some of those cases are not foldable at all. But this way their bitmask is constructed.
 
@@ -254,7 +209,7 @@ irq_vektor_\Name:
 .equ Flag_opcodierbar_Rechenlogik_M3,    Flag_foldable|Flag_opcodable|6
   .endif
 
-.equ Flag_buffer, 0x00000100
+.equ Flag_buffer, Flag_visible | 0x0100
 .equ Flag_buffer_foldable, Flag_buffer|Flag_foldable
 
 @ -----------------------------------------------------------------------------
@@ -349,7 +304,7 @@ irq_vektor_\Name:
 .macro welcome Meldung
   bl dotgaensefuesschen 
         .byte 8f - 7f         @ Compute length of name field.
-7:      .ascii "Mecrisp-Stellaris 2.0.1"
+7:      .ascii "Mecrisp-Stellaris 2.0.2"
         .ascii "\Meldung\n"
 8:      .p2align 1
 .endm

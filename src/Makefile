@@ -6,7 +6,7 @@ AS=$(ARMGNU)-as
 TOP:=$(dir $(lastword $(MAKEFILE_LIST)))
 TESTING=$(MAKEFILE_LIST)
 
-BOARDS=kl25z128 lm4f120 lm4f232 mk20dx256 nrf51822 stm32f051 stm32f100 stm32f103 stm32f401 stm32f407 stm32f429 tm4c1294
+BOARDS=kl25z128 lm4f120 lm4f232 mk20dx256 nrf51822 stm32f051 stm32l152 stm32f100 stm32f103 stm32f303 stm32f401 stm32f407 stm32f429 tm4c1294
 
 all: $(BOARDS)
 	for d in $(BOARDS); do $(MAKE) -C $$d; done

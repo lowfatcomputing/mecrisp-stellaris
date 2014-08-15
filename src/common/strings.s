@@ -130,7 +130,7 @@ space:
   pop {pc}
 
 @------------------------------------------------------------------------------
-  Wortbirne Flag_immediate+Flag_foldable_0, "[char]" @ ( -- )  Get character from input stream and compile it as literal
+  Wortbirne Flag_immediate|Flag_foldable_0, "[char]" @ ( -- )  Get character from input stream and compile it as literal
   @ Holt ein Zeichen aus dem Eingabestrom und fügt es als Literal ein.
 @------------------------------------------------------------------------------
   b.n holechar

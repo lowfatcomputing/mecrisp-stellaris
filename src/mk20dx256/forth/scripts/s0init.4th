@@ -270,10 +270,6 @@ $E000E018 constant NVIC_ST_CURRENT_R
  ." An idea that is developed and put into action is more important"
  CR ." than an idea that exists only as an idea. " CR
 ;
-: dictionarynext ( address -- address flag )
- @ dup $FFFFFFFF = 
- if -1 else dup 6 + c@ $FF = then
-;
 : list ( -- )
  cr
  dictionarystart 

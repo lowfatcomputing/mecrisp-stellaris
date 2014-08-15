@@ -20,30 +20,7 @@
 @ Interruptvektortabelle
 @ -----------------------------------------------------------------------------
 
-.equ addresszero, . @ This is needed to circumvent address relocation issues.
-
-.word   returnstackanfang  @ 00: Stack top address
-.word   Reset+1            @ 01: Reset Vector  +1 wegen des Thumb-Einsprunges
-
-@ Gemeinsame Interruptvektortabelle: Common interrupt vector table:
-
-.word nullhandler+1   			@ 02: The NMI handler
-.word nullhandler+1   			@ 03: The hard fault handler
-.word 0               			@ 04: The MPU fault handler
-.word 0               			@ 05: Reserved
-.word 0               			@ 06: Reserved
-.word 0               			@ 07: Reserved
-.word 0               			@ 08: Reserved
-.word 0               			@ 09: Reserved
-.word 0               			@ 10: Reserved
-.word nullhandler+1   			@ 11: SVCall handler
-.word 0               			@ 12: Reserved
-.word 0               			@ 13: Reserved
-.word nullhandler+1   			@ 14: The PendSV handler
-.word irq_vektor_systick+1		@ 15: The SysTick handler
-
-@ Bis hierhin ist die Interruptvektortabelle bei allen ARM Cortex M0 Chips gleich.
-@ Danach geht es mit den Besonderheiten eines jeden Chips los.
+.include "../common/vectors-common.s"
 
 @ Special interrupt handlers for this particular chip:
 
@@ -82,9 +59,4 @@
 
 @ Much more ! 
 
-@ -----------------------------------------------------------------------------
-unhandled:
-  push {lr} 
-  writeln "Unhandled Interrupt !"
-  pop {pc}
 @ -----------------------------------------------------------------------------

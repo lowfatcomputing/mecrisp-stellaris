@@ -53,72 +53,33 @@
    str r1, [r0]
   
   @ Registerbelegung:  Register allocation here:
-  @ r0 Adresshangelzeiger  Pointer that crawls through dictionary
-  @ r1 Aktuelle Flags      Current Flags
-  @ r2 Aktueller Link      Current Link
+  
+  @  r0 Für dies und das    Temporary this and that
+  @  r1 Aktuelle Flags      Current Flags
+  @  r3 Für dies und das    Temporary this and that
+  @  r5 Belegtes Ram.       Keeps track of allocated RAM
+  @ TOS Adresshangelzeiger  Pointer that crawls through dictionary
 
-  @ r3 Für dies und das    Temporary this and that
-
-  @ r4 SucheFadenende...   Search for end of dictionary structure
-
-  @ r5 Belegtes Ram.       Keeps track of allocated RAM
-
-  ldr r0, =CoreDictionaryAnfang   @ Hier fängt es an.  Start at the beginning
-
-  ldr r5, =RamDictionaryEnde @ Fürs Abzählen des Variablenplatzes  Variables start at the end of RAM dictionary
-
-  @ Zwei Möglichkeiten: Vorwärtslink ist $FFFFFFFF --> Ende gefunden
-  @ Oder Vorwärtslink gesetzt, aber an der Stelle der Namenslänge liegt $FF. Dann ist das Ende auch da.
-  @ Diese Variante tritt auf, wenn nichts hinzugetan wurde, denn im festen Teil ist der Vorwärtslink
-  @ immer gesetzt und zeigt auf den Anfang des Schreib/Löschbaren Teils.
-
-  @ There are two possibilities to detect end of dictionary:
-  @ - Link is $FFFFFFFF
-  @ - Link is set, but points to memory that contains $FF in name length.
-  @ Last case happens if nothing is compiled yet, as the latest link in core always
-  @ points to the beginning of user writeable/eraseable part of dictionary space.
-
-  @ Dictionary entry structure:
-  @ 4 Bytes Link ( 2-aligned on M3, 4-aligned on M0 )
-  @ 2 Bytes Flags
-  @ 1 Byte  Name length
-  @         Counted Name string and sometimes a padding zero to realign.
-  @         Code.
+  pushdatos
+  ldr tos, =CoreDictionaryAnfang  @ Hier fängt es an.  Start at the beginning
+  ldr r5,  =RamDictionaryEnde     @ Fürs Abzählen des Variablenplatzes  Variables start at the end of RAM dictionary
 
 SucheFlashPointer_Hangelschleife:
+  ldrh r1, [tos, #4]  @ Aktuelle Flags lesen  Fetch current Flags
 
-  movs r4, r0 @ Es könnte das Fadenende sein !      Save current address - it might already be LATEST.
-  @ Hier ist r0 direkt auf das Flagfeld gerichtet. Register r0 currently points to flag field.
-
-  @ Adresse in r0 zeigt auf:
-
-  @   --> Link
-  ldr r2, [r0]  @ Aktuellen Link lesen   Fetch current Link
-  adds r0, #4
-
-  @   --> Flagfeld
-  ldrh r1, [r0]  @ Aktuelle Flags lesen  Fetch current Flags
-  adds r0, #2
-
-  @   --> Namen   Currently, r0 points to name string.
-  @ Prüfe für die Rambelegung die Flags der aktuellen Definition:
-
-  .ifdef m0core
-  ldr r3, =0xFFFF
-  .else
-  movw r3, #0xFFFF
-  .endif
+  ldr r3, =Flag_invisible
 
   cmp r1, r3   @ Flag_invisible ? Überspringen !  Skip invisible definitions
   beq.n Sucheflashpointer_Speicherbelegung_fertig
     @ Dies Wort ist sichtbar. Prüfe, ob es Ram-Speicher anfordert und belegt.
     @ This definition is visible. Check if it allocates RAM.
 
-    ldr r3, =Flag_buffer
+    ldr r3, =Flag_buffer & ~Flag_visible
     ands r3, r1
     beq 1f @ No buffer requested.
 
       @ Search for end of code of current definition.
+      adds r0, tos, #6
       bl skipstring
       @ r0 zeigt nun an den Codebeginn des aktuellen Wortes.  r0 points to start of code of current definition
       bl suchedefinitionsende @ Advance pointer to end of code. This is detected by "bx lr" or "pop {pc}" opcodes.
@@ -134,8 +95,7 @@ SucheFlashPointer_Hangelschleife:
       subs r5, r3  
       b.n Sucheflashpointer_Speicherbelegung_fertig @ Finished
 
-
-1:  movs r3, #Flag_ramallot
+1:  movs r3, #Flag_ramallot & ~Flag_visible
     ands r3, r1
     
     beq.n Sucheflashpointer_Speicherbelegung_fertig @ Benötigt doch kein RAM.
@@ -160,6 +120,7 @@ SucheFlashPointer_Hangelschleife:
 
         @ Muss zuerst schaffen, das Ende der aktuellen Definition zu finden.
         @ Search for end of code of current definition.
+        adds r0, tos, #6
         bl skipstring
         @ r0 zeigt nun an den Codebeginn des aktuellen Wortes.  r0 points to start of code of current definition
         bl suchedefinitionsende @ Advance pointer to end of code. This is detected by "bx lr" or "pop {pc}" opcodes.
@@ -173,47 +134,19 @@ SucheFlashPointer_Hangelschleife:
 Sucheflashpointer_Speicherbelegung_fertig:
   @ Speicherbelegung und -initialisierung abgeschlossen.
   @ Finished RAM allocation and initialisation.
-  @ Prüfe den Link Check Link.
+
+  @ Weiterhangeln  Continue crawl.
+  bl dictionarynext
+  popda r0
+  beq.n SucheFlashPointer_Hangelschleife
+
  
-
-  adds r0, r2, #1 @ -1 +1 = 0 Ungesetzter Link bedeutet Ende erreicht  Unset Link means end of dictionary detected.
-  beq.n SucheFlashPointer_Fadenende_gefunden
-
-  @ writeln " Folge dem Link, er ist gesetzt"
-  @ Dem Link folgen  Follow the link, it is set
-  movs r0, r2
-
-  @ Prüfe, ob die Namenslänge an der Stelle etwas anderes als $FF ist:
-  @ Check if the name length on that location is different from $FF:
-  adds r2, #6 @ Flags und Link überlesen  Skip Flags and Link
-  ldrb r2, [r2]
-  cmp r2, #0xFF @ Ist an der Stelle der Namenslänge $FF ? Dann ist das Fadenende erreicht.  End detected if name length is $FF.
-  beq.n SucheFlashPointer_Fadenende_gefunden
-  
-  @ write " Namenslänge nicht $FF, weiterhangeln"  
-  @ Okay, der Faden ist noch nicht am Ende. Es könnte allerdings das letzte Wort sein.
-  @ Dictionary continues, end not detected yet.
-
-  b.n SucheFlashPointer_Hangelschleife
-
-SucheFlashPointer_Fadenende_gefunden:
   ldr r0, =ZweitFadenende
-  str r4, [r0] @ Das Fadenende für den Flash setzen.  Set pointer to latest definition.
-
-@  write "Fadenende im Flash: "
-@  pushda r4
-@  bl hexdot
-@  writeln " gefunden."
-
+  str tos, [r0] @ Das Fadenende für den Flash setzen.  Set pointer to latest definition.
+  drop
 
   ldr r0, =VariablenPointer @ Set pointer to current end-of-ram-dictionary for later permanent RAM allocations by variables defined in Flash.
   str r5, [r0]
-
-@  write "Stand des Variablenpointers: "
-@  pushda r5
-@  bl hexdot
-@  writeln " gefunden."
-
 
   @ Mache mich auf die Suche nach dem Dictionarypointer im Flash:
   @ Suche jetzt gleich noch den DictionaryPointer.
@@ -221,7 +154,7 @@ SucheFlashPointer_Fadenende_gefunden:
 
   ldr r0, =FlashDictionaryEnde
   ldr r1, =FlashDictionaryAnfang
-  ldr r2, =0xffff
+  ldr r2, =erasedhalfword
 
   @ Gehe Rückwärts, bis ich aus dem $FFFF-Freigebiet in Daten komme.
   @ Run backwards through whole Flash memory to find DictionaryPointer.
@@ -239,11 +172,6 @@ SucheFlashPointer_Fadenende_gefunden:
 2:@ Dictionarypointer gefunden. Found DictionaryPointer.
   ldr r1, =ZweitDictionaryPointer @ We start to compile into RAM - the pointer found goes to the second set of pointers that are swapped with compiletoflash/compiletoram.
   str r0, [r1]
-
-@  write "Dictionarypointer im Flash: "
-@  pushda r0
-@  bl hexdot
-@  writeln " gefunden."
 
   .ifdef emulated16bitflashwrites
    @ Prepare 16-Bit Flash write emulation value-and-location collection table

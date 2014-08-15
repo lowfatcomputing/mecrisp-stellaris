@@ -61,8 +61,8 @@ Setup_Clocks:
 
 awaitHSE:
         ldr r0, [r1]
-        and r0, # HSERDY
-        beq awaitHSE            @ hang here until external clock is stable
+        ands r0, #HSERDY
+        beq.n awaitHSE            @ hang here until external clock is stable
 
         @ at this point, the HSE is running and stable but I suppose we have not yet
         @ switched Sysclk to use it.

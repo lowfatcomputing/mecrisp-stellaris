@@ -172,9 +172,9 @@ not_found_addr_r0_len_r1:
     movs r5, #0   @ Konstantenfaltungszeiger löschen  Clear constant folding pointer
     str r5, [r4]  @ Do not collect literals for folding in execute mode. They simply stay on stack.
 
-    movs r3, #Flag_immediate_compileonly
+    movs r3, #Flag_immediate_compileonly & ~Flag_visible
     ands r3, r1
-    cmp r3, #Flag_immediate_compileonly
+    cmp r3, #Flag_immediate_compileonly & ~Flag_visible
     bne.n .ausfuehren
       bl stype
       Fehler_Quit_n " is compile-only."
@@ -204,10 +204,9 @@ not_found_addr_r0_len_r1:
     @ Check this first, as Ramallot is set together with foldability,
     @ but the meaning of the lower 4 bits is different.
 
-    movs r0, #Flag_ramallot
+    movs r0, #Flag_ramallot & ~Flag_visible
     ands r0, r1 @ Flagfeld auf Faltbarkeit hin prüfen
-    cmp r0, #Flag_ramallot
-    beq.n .interpret_faltoptimierung
+    bne.n .interpret_faltoptimierung
 
     @ Bestimme die Anzahl der zur Faltung bereitliegenden Konstanten:
     @ Calculate number of folding constants available.
@@ -219,16 +218,14 @@ not_found_addr_r0_len_r1:
     @ Prüfe die Faltbarkeit des aktuellen Tokens:
     @ Check for foldability.
     
-    movs r0, #Flag_foldable
+    movs r0, #Flag_foldable & ~Flag_visible
     ands r0, r1 @ Flagfeld auf Faltbarkeit hin prüfen
-    cmp r0, #Flag_foldable
-    bne.n .konstantenschleife
+    beq.n .konstantenschleife
 
       @ Check for opcodability.
-      movs r0, #Flag_opcodable
+      movs r0, #Flag_opcodable & ~Flag_visible
       ands r0, r1
-      cmp r0, #Flag_opcodable
-      bne.n .interpret_genugkonstanten @ Flag is set
+      beq.n .interpret_genugkonstanten @ Flag is set
       cmp r3, #0 @ And at least one constant is available for folding.
       beq.n .interpret_genugkonstanten
         b.n .interpret_opcodierbar
@@ -259,18 +256,16 @@ not_found_addr_r0_len_r1:
   @ Classic compilation.
   pushda r2 @ Adresse zum klassischen Bearbeiten. Put code entry point on datastack.
 
-  movs r2, #Flag_immediate
+  movs r2, #Flag_immediate & ~Flag_visible
   ands r2, r1
-  cmp r2, #Flag_immediate
-  bne.n 6f
+  beq.n 6f
     @ Es ist immediate. Immer ausführen. Always execute immediate definitions.
     bl execute @ Ausführen.
     b.n 1b @ Zurück in die Interpret-Schleife.  Finished.
 
-6:movs r2, #Flag_inline
-  ands r2, r1  
-  cmp r2, #Flag_inline
-  bne.n 7f
+6:movs r2, #Flag_inline & ~Flag_visible
+  ands r2, r1
+  beq.n 7f
   
   bl inlinekomma @ Direkt einfügen.        Inline the code
   b.n 1b @ Zurück in die Interpret-Schleife  Finished.

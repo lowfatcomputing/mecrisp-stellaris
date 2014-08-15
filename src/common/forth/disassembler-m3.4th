@@ -5,26 +5,6 @@
 \ resolves call entry points, literal pools and handles inline strings.
 \ Usage: Specify your target address in disasm-$ and give disasm-step some calls.
 
-\ ------------------------------------------------
-\  Two definitions to scan dictionary on M3/M4
-\ ------------------------------------------------
-
-\ Dictionary structure for Cortex M3/4 is:
-\  (2-aligned)
-\      4 Bytes Link
-\      2 Bytes Flags
-\  (2-aligned)
-\      1 Byte Name length and name characters as counted string, maybe with filling zero to align
-\  (2-aligned)
-\      Code entry point
-
-\ dictionarystart is already defined in core as it depends of particular chip
-
-: dictionarynext ( address -- address flag )
-    @ dup $FFFFFFFF =                \ Check if link points to another definition or into free space.
-    if -1 else dup 6 + c@ $FF = then \ $FF instead of Name length denotes end of dictionary in Flash, too.  
-;
-
 \ ------------------------
 \  A quick list of words 
 \ ------------------------

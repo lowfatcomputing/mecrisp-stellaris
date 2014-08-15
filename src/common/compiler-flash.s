@@ -47,11 +47,12 @@ smudge:
     @ r1 enthält den DictionaryPointer.  r1 already contains Dictionarypointer
     subs r1, #2
     ldrh r2, [r1]
-    ldr r3, =0xFFFF
+    ldr r3, =erasedhalfword
     cmp r2, r3
     bne 1f
       @ writeln "Füge in Smudge eine Enderkennungs-Null ein."
-      pushdaconst 0
+      pushdatos
+      ldr tos, =writtenhalfword
       bl hkomma
 1:  @ Okay, Ende gut, alles gut. Fine :-)
 
@@ -202,8 +203,14 @@ align4komma: @ Macht den Dictionarypointer auf 4 gerade
 
   beq 1f
 
-  pushdaconst 0
-  bl hkomma
+  .ifdef erasedflashcontainszero
+    pushdatos
+    movw tos, #writtenhalfword
+    bl hkomma
+  .else 
+    pushdaconst 0
+    bl hkomma
+  .endif
 
 1: @ Fertig.
   pop {pc}
@@ -547,7 +554,8 @@ create: @ Nimmt das nächste Token aus dem Puffer,
 
   ldr r2, [r1] @ Inhalt des Link-Feldes holen  Check if Link is set
 
-  adds r3, r2, #1 @ Ist der Link ungesetzt ?      Isn't it ?
+  ldr r3, =erasedword
+  cmp r2, r3 @ Ist der Link ungesetzt ?      Isn't it ?
   bne 1f
 
   @ Neuen Link einfügen: Im Prinzip str tos, [r1] über Komma.
@@ -582,8 +590,7 @@ create_ram:
 
   @ Flags setzen  Set initial Flags to Invisible.
   pushdatos
-  movs tos, #0
-  mvns tos, tos
+  ldr tos, =Flag_invisible
   bl hkomma
 
   @ Das Fadenende aktualisieren  Set new latest
@@ -681,7 +688,7 @@ nvariable: @ Creates an initialised variable of given length.
 
 2:@ Finished.
 
-  pushdaconst Flag_ramallot  @ Finally (!) set Flags for RAM usage.
+  pushdaconst Flag_ramallot & ~Flag_visible @ Finally (!) set Flags for RAM usage.
   orrs tos, r2               @ Or together with desired amount of cells.
   bl setflags
   bl smudge
@@ -833,7 +840,7 @@ rambuffer_ram:
 
 
 @ -----------------------------------------------------------------------------
-  Wortbirne Flag_visible, "Dictionarystart"
+  Wortbirne Flag_visible, "dictionarystart"
 dictionarystart: @ ( -- Startadresse des aktuellen Dictionaryfadens )
                  @ Da dies je nach Ram oder Flash unterschiedlich ist...
                  @ Einmal so ausgelagert.
@@ -845,16 +852,15 @@ dictionarystart: @ ( -- Startadresse des aktuellen Dictionaryfadens )
   ldr r0, =Dictionarypointer
   ldr r0, [r0]
 
-  ldr r3, =Fadenende @ Schonmal vorsorglich holen
-  ldr r3, [r3]
-
   ldr r1, =Backlinkgrenze
   pushdatos
   cmp r0, r1
   bhs 1f
   ldr tos, =CoreDictionaryAnfang @ Befinde mich im Flash mit Backlinks. Muss beim CoreDictionary anfangen:        In Flash: Start with core dictionary.
   bx lr
-1:movs tos, r3                   @ Oberhalb der Backlinkgrenze bin ich im Ram, kann mit dem Fadenende beginnen.   In RAM:   Start with latest definition.
+
+1:ldr tos, =Fadenende
+  ldr tos, [tos]                   @ Oberhalb der Backlinkgrenze bin ich im Ram, kann mit dem Fadenende beginnen.   In RAM:   Start with latest definition.
   bx lr
 
 
@@ -863,6 +869,52 @@ dictionarystart: @ ( -- Startadresse des aktuellen Dictionaryfadens )
 @    movhs r2, r3                    @ Oberhalb der Backlinkgrenze bin ich im Ram, kann mit dem Fadenende beginnen.   In RAM:   Start with latest definition.
 @  pushda r2
 @  bx lr
+
+
+  @ Zwei Möglichkeiten: Vorwärtslink ist $FFFFFFFF --> Ende gefunden
+  @ Oder Vorwärtslink gesetzt, aber an der Stelle der Namenslänge liegt $FF. Dann ist das Ende auch da.
+  @ Diese Variante tritt auf, wenn nichts hinzugetan wurde, denn im festen Teil ist der Vorwärtslink
+  @ immer gesetzt und zeigt auf den Anfang des Schreib/Löschbaren Teils.
+
+  @ There are two possibilities to detect end of dictionary:
+  @ - Link is $FFFFFFFF
+  @ - Link is set, but points to memory that contains $FF in name length.
+  @ Last case happens if nothing is compiled yet, as the latest link in core always
+  @ points to the beginning of user writeable/eraseable part of dictionary space.
+
+  @ Dictionary entry structure:
+  @ 4 Bytes Link ( 2-aligned on M3, 4-aligned on M0 )
+  @ 2 Bytes Flags
+  @ 1 Byte  Name length
+  @         Counted Name string and sometimes a padding zero to realign.
+  @         Code.
+
+@ -----------------------------------------------------------------------------
+  Wortbirne Flag_visible, "dictionarynext" @ ( address -- address flag )
+dictionarynext: @ Scans dictionary chain and returns true if end is reached.
+@ -----------------------------------------------------------------------------
+  push {r0, r1, lr}
+  ldr r1, [tos]
+  ldr r0, =erasedword
+  cmp r1, r0
+  beq 1f
+    ldrb r0, [r1, #6]
+    cmp r0, #erasedbyte
+    beq 1f
+      movs tos, r1
+      pushdaconst 0
+      pop {r0, r1, pc}
+
+1:pushdatos
+  movs tos, #0
+  mvns tos, tos
+  pop {r0, r1, pc}
+
+@ : dictionarynext ( address -- address flag )
+@     @ dup $FFFFFFFF =                \ Check if link points to another definition or into free space.
+@     if -1 else dup 6 + c@ $FF = then \ $FF instead of Name length denotes end of dictionary in Flash, too.  
+@ ;
+
 
 @ -----------------------------------------------------------------------------
   Wortbirne Flag_visible, "skipstring"
@@ -899,84 +951,70 @@ skipstring: @ Überspringt einen String, dessen Adresse in r0 liegt.  Skip strin
 find: @ ( address length -- Code-Adresse Flags )
 @ -----------------------------------------------------------------------------
   push {r0, r1, r2, r3, r4, r5, lr}
-        
-  @ r0  Hangelpointer   Pointer for crawl the dictionary
+  
+  @ r0  Helferlein      Scratch
   @ r1  Flags           Flags
-  @ r2  Aktuellen Link  Current Link
 
-  @ tos Zieladresse     Destination Address
+  @ r2  Zieladresse     Destination Address
   @ r3  Zielflags       Destination Flags
 
   @ r4  Adresse des zu suchenden Strings  Address of string that is searched for
+  @ r5  Dessen Länge                      Length
 
-  popda r5     @ Fetch string length
-  movs r4, tos @ Zu suchenden String holen, Lücke auf dem Datenstack lassen  Fetch string address, leave space on datastack
+  @ TOS Hangelpointer   Pointer for crawl the dictionary
+
+  movs r2, #0  @ Noch keinen Treffer          No hits yet
+  movs r3, #0  @ Und noch keine Trefferflags  No hits have no Flags
+
+  popda r5 @ Fetch string length
+  popda r4 @ Fetch string address
 
   bl dictionarystart
-  popda r0
 
-  movs tos, #0  @ Noch keinen Treffer          No hits yet
-  movs r3, #0   @ Und noch keine Trefferflags  No hits have no Flags
+1:@ Loop through the dictionary
+  ldr r0, =Flag_invisible
+  ldrh r1, [tos, #4] @ Fetch Flags to see if this definition is visible.
+  cmp r0, r1         @ Skip this definition if invisible
+  beq 2f
 
-1:   @ Ist an der Stelle der Namenslänge $FF ? Dann ist der Faden abgelaufen.  If there is $FF in the location for the name length the dictionary search is over.
-     @ Prüfe hier die Namenslänge als Kriterium
-     ldrb r1, [r0, #6] @ Hole Namenslänge, Stelle plus 2 Bytes Flags 4 Bytes Link  Fetch name length. Current location +2 for skipping Flags +4 for skipping Link.
-     cmp r1, #0xFF
-     beq 3f        @ Fadenende erreicht  Finished.
+  @ Definition is visible. Compare the name !
+  dup
+  adds tos, #6 @ Skip Link and Flags
+  bl count     @ Prepare an address-length string
 
-        @ Adresse in r0 zeigt auf:  Address in r0 points to:
-        @   --> Link
-        ldrh r1, [r0, #4]  @ Aktuelle Flags lesen  Read current Flags
+  pushda r4
+  pushda r5
+  bl compare
 
-        ldr r2, =0xFFFF
-        cmp r1, r2      @ Flag_invisible ? Überspringen !  Skip this definition if invisible
-          @   --> Link
-          ldr r2, [r0]  @ Aktuellen Link lesen, verändert Flags nicht !
-        beq 2f        
-
-        adds r0, #6 @ Skip Link and Flags
-
-          @ --> Name
-          pushda r0
-          bl count
-          pushda r4
-          pushda r5
-          bl compare
-
-          cmp tos, #0 @ Flag vom Vergleich prüfen  Ckeck for Flag from string comparision
-          drop
-          beq 2f
+  cmp tos, #0 @ Flag vom Vergleich prüfen  Ckeck for Flag from string comparision
+  drop
+  beq 2f
                 
-            @ Gefunden ! Found !
-            @ String überlesen und Pointer gerade machen   Skip name string
-            bl skipstring
+    @ Gefunden ! Found !
+    @ String überlesen und Pointer gerade machen   Skip name string
+    adds r0, tos, #6
+    bl skipstring
 
-            movs tos, r0 @ Codestartadresse  Note Code start address
-            movs r3, r1 @ Flags              Note Flags
-            @ Prüfe, ob ich mich im Flash oder im Ram befinde.  Check if in RAM or in Flash.
-            @ r0 wird jetzt nicht mehr gebraucht:
-            ldr r0, =Backlinkgrenze
-            cmp tos, r0
-            bhs 3f @ Im Ram beim ersten Treffer ausspringen. Search is over in RAM with first hit. 
-            @ Im Flash wird weitergesucht, ob es noch eine neuere Definition mit dem Namen gibt.
-            @ If in Flash, whole dictionary has to be searched because of backwards link dictionary structure.
+    movs r2, r0 @ Codestartadresse  Note Code start address
+    movs r3, r1 @ Flags             Note Flags
 
-2:      @ Weiterhangeln  Continue crawl.
+    @ Prüfe, ob ich mich im Flash oder im Ram befinde.  Check if in RAM or in Flash.
+    ldr r0, =Backlinkgrenze
+    cmp r2, r0
+    bhs 3f @ Im Ram beim ersten Treffer ausspringen. Search is over in RAM with first hit. 
+           @ Im Flash wird weitergesucht, ob es noch eine neuere Definition mit dem Namen gibt.
+           @ If in Flash, whole dictionary has to be searched because of backwards link dictionary structure.
 
-        @ Link prüfen: Check Link
-        @ Ungesetzter Link bedeutet Ende erreicht  Unset Link means end of dictionary detected.
+2:@ Weiterhangeln  Continue crawl.
+  bl dictionarynext
+  popda r0
+  beq 1b
 
-        adds r0, r2, #1 @ -1 + 1 = 0
-        beq 3f          @ Link=0xFFFFFFFF bedeutet: Fadenende erreicht.  Link=-1 means: End of dictionary reached.
-
-        @ Link folgen  Follow the Link:
-        movs r0, r2
-        b 1b      
 
 3:@ Durchgehangelt. Habe ich etwas gefunden ?  Finished. Found something ?
-  @ Zieladresse gesetzt, also nicht Null bedeutet: Etwas gefunden !    Destination address in TOS <> 0 means successfully found.
-             @ Zieladresse    oder 0, falls nichts gefunden            Address = 0 means: Not found. Check for that !
-  pushda r3  @ Zielflags      oder 0  --> @ ( 0 0 - Nicht gefunden )   Push Flags on Stack. ( Destination-Code Flags ) or ( 0 0 ).
+  @ Zieladresse gesetzt, also nicht Null bedeutet: Etwas gefunden !    Destination address <> 0 means successfully found.
+  movs tos, r2  @ Zieladresse    oder 0, falls nichts gefunden            Address = 0 means: Not found. Check for that !
+  pushda r3     @ Zielflags      oder 0  --> @ ( 0 0 - Nicht gefunden )   Push Flags on Stack. ( Destination-Code Flags ) or ( 0 0 ).
 
   pop {r0, r1, r2, r3, r4, r5, pc}
 

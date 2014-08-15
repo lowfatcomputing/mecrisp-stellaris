@@ -52,7 +52,7 @@ sammeltabelleleerprobe: @ ( -- ) Prüft, ob die Sammeltabelle abgearbeitet ist.
 1:ldrh r2, [r0]
   cmp r2, #0
   beq 2f
-    Fehler_Quit "Unpaired 16-bit Flash write left alone."
+    Fehler_Quit "Unpaired 16-bit Flash write."
 
 2:adds r0, #2
   subs r1, #1
@@ -120,7 +120,7 @@ sammeltabellensuche: @ Searches for an entry in collection table for the cases s
   bne 1b
 
   @ Nicht gefunden: Suche eine leere Stelle in der Tabelle !
-  Fehler_Quit "Desired location not found in Flash write collection table."
+  Fehler_Quit "Location not found in Flash write collection table."
 
 2:ldrh tos, [r0, #4] @ Inhalt für diese Stelle zurückgeben.
   bx lr

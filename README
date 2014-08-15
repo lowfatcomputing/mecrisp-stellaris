@@ -23,10 +23,12 @@ a port of Mecrisp to the ARM Cortex M architecture.
 It runs out of the box on:
   - TI Stellaris/Tiva Launchpad  with LM4F120H5QR / TM4C123GH6PM
   - TI Tiva Connected Launchpad  with TM4C1294NCPDT
+  - STM Nucleo L152RE            with STM32L152RE
   - STM Nucleo 401RE             with STM32F401RE
   - STM F0 Discovery             with STM32F051R8
   - STM VL Discovery             with STM32F100RB
   - Shenzhen LC Technology board with STM32F103C8T6
+  - STM F3 Discovery             with STM32F303VCT6
   - STM F4 Discovery             with STM32F407VGT6 
   - STM F429 Discovery           with STM32F429ZIT6
   - Freescale Freedom FRDM-KL25Z with KL25Z128VLK4
@@ -54,6 +56,8 @@ Communication is via serial 115200 baud 8N1 over
   - USART1 in STM32F051 (TX on PA9, RX on PA10)
   - USART1 in STM32F100 (TX on PA9, RX on PA10)
   - USART1 in STM32F103 (TX on PA9, RX on PA10)
+  - USART1 in STM32F303 (TX on PA9, RX on PA10)
+  - USART2 in STM32L152 (TX on PA2, RX on PA3 connected to USB-serial bridge on Nucleo board)
   - USART2 in STM32F401 (TX on PA2, RX on PA3 connected to USB-serial bridge on Nucleo board)
   - USART2 in STM32F407 (TX on PA2, RX on PA3)
   - USART1 in STM32F429 (TX on PA9, RX on PA10)
@@ -62,7 +66,9 @@ Communication is via serial 115200 baud 8N1 over
   - UART0  in MK20DX256 (RX1/TX1 on Teensy 3.1.  Physical pins #2/#3 (these are also Digital IO 0/1 lines)
     	      		Digital IO pins 18/19 are setup for CTS/RTS respectively
 
+;------------------------------------------------------------------------------
 Hardware and configuration for LM4F120 and TM4C123:
+;------------------------------------------------------------------------------
   Connect your cable to the Debug-USB-Port, 
   set "PWR SELECT" switch to DEBUG and
   close VDD jumper.
@@ -73,7 +79,9 @@ Hardware and configuration for LM4F120 and TM4C123:
   On startup, this runs with internal PIOSC at 16 MHz, 
   which is specified +-3% over whole temperature range.
 
+;------------------------------------------------------------------------------
 Hardware and configuration for TM4C1294:
+;------------------------------------------------------------------------------
   Connect your cable to the Debug-USB-Port, 
   set "POWER SELECT" jumpers (JP1) to "ICDI",
   close both "MCU 3V3" (JP2) and "+3v3" (JP3) jumpers and
@@ -85,7 +93,26 @@ Hardware and configuration for TM4C1294:
   On startup, this runs with internal PIOSC at 16 MHz, 
   which is specified +-3% over whole temperature range.
 
+;------------------------------------------------------------------------------
+Hardware and configuration for STM32L152:
+;------------------------------------------------------------------------------
+  Connect USB cable to ST-Link USB port.
+  Terminal is included into the debug section on Nucleo boards.
+  
+  Flashing is possible with st-flash:
+  https://github.com/texane/stlink
+
+  Flash memory is mirrored in hardware starting from address 0. Mecrisp uses
+  the low address range to generate short opcodes for calling core words, but
+  for flashing the binary, you have to use the "true address" $08000000.
+  st-flash erase
+  st-flash write mecrisp-stellaris-stm32l152.bin 0x08000000
+
+  On startup, this runs with internal 16 MHz HSI clock.
+
+;------------------------------------------------------------------------------
 Hardware and configuration for STM32F401:
+;------------------------------------------------------------------------------
   Connect USB cable to ST-Link USB port.
   Terminal is included into the debug section on Nucleo boards.
   
@@ -100,7 +127,9 @@ Hardware and configuration for STM32F401:
 
   On startup, this runs with internal 16 MHz HSI clock.
 
+;------------------------------------------------------------------------------
 Hardware and configuration for STM32F407:
+;------------------------------------------------------------------------------
   Connect USB cable to ST-Link USB port,
   connect your favourite serial link to PA2 (TX) and PA3 (RX),
   keep logic voltage levels in mind !
@@ -117,7 +146,9 @@ Hardware and configuration for STM32F407:
   On startup, this runs with external 8 MHz crystal HSE clock,
   as internal oscillator is specified -8% + 4.5% over whole temp range.
 
+;------------------------------------------------------------------------------
 Hardware and configuration for STM32F429:
+;------------------------------------------------------------------------------
   Similiar to STM32F407.
 
   Connect USB cable to ST-Link USB port,
@@ -129,7 +160,9 @@ Hardware and configuration for STM32F429:
 
   On startup, this runs with external 8 MHz crystal HSE clock.
 
+;------------------------------------------------------------------------------
 Hardware and configuration for STM32F051:
+;------------------------------------------------------------------------------
   Similiar to STM32F407.
 
   Connect USB cable to ST-Link USB port,
@@ -141,7 +174,9 @@ Hardware and configuration for STM32F051:
 
   On startup, this runs with internal 8 MHz HSI clock.
 
+;------------------------------------------------------------------------------
 Hardware and configuration for STM32F100:
+;------------------------------------------------------------------------------
   Similiar to STM32F407.
 
   Connect USB cable to ST-Link USB port,
@@ -153,7 +188,23 @@ Hardware and configuration for STM32F100:
 
   On startup, this runs with internal 8 MHz HSI clock.
 
+;------------------------------------------------------------------------------
+Hardware and configuration for STM32F303:
+;------------------------------------------------------------------------------
+  Similiar to STM32F407.
+
+  Connect USB cable to ST-Link USB port,
+  connect your favourite serial link to PA9 (TX) and PA10 (RX),
+  keep logic voltage levels in mind !
+
+  st-flash erase
+  st-flash write mecrisp-stellaris-stm32f303.bin 0x08000000
+
+  On startup, this runs with internal 8 MHz HSI clock.
+
+;------------------------------------------------------------------------------
 Hardware and configuration for KL25Z128:
+;------------------------------------------------------------------------------
   Connect USB cable to SDA-USB-PORT
 
   Flashing is via mass storage interface -
@@ -168,7 +219,9 @@ Hardware and configuration for KL25Z128:
   directory, type "make", copy the binary and then type 
   "thumbulator mecrisp-stellaris-kl25z128.bin" to run.
 
+;------------------------------------------------------------------------------
 Hardware and configuration for MK20DX256VLH7 on a Teensy 3.1 board:
+;------------------------------------------------------------------------------
   ( Contributed by Mark Schweizer )
 
   Connect USB cable to USB port
@@ -195,10 +248,11 @@ USB|       Teensy 3.1 	      o
     N X X
     D
   
-  On startup, this runs with internal FLL at 20.97 MHz.  See MCG.4th for how to switch to 96MHz
+  On startup, this runs with internal FLL at 20.97 MHz.  See MCG.txt for how to switch to 96MHz
 
-
+;------------------------------------------------------------------------------
 Hardware and configuration for nRF51822:
+;------------------------------------------------------------------------------
   ( Contributed by John Huberts )
 
   I have been using the nRFgo Motherboard fitted with a nRF51822 module 
@@ -217,6 +271,7 @@ Hardware and configuration for nRF51822:
   .equ RX_PIN_NUMBER, 16
   .equ TX_PIN_NUMBER, 17
 
+;------------------------------------------------------------------------------
 
 Mecrisp-Stellaris itself is sending LF for line ending,
 but recognizes both LF and CR. Invoke Picocom with something like
@@ -228,19 +283,17 @@ look at the beginning of mecrisp-stellaris-....s.
 Assembling is done with the GCC-Arm-Embedded toolchain:
 https://launchpad.net/gcc-arm-embedded/
 
-
-Differences to Mecrisp for MSP430 are:
+;------------------------------------------------------------------------------
 
 * Fetch-Modify-Store operations like +! or bic! are not atomic.
 
-* Comfortable hardware support is done in Forth this time.
-   You can contribute your favourite hardware handling routines 
-   to be included in upcoming releases !
-
-* For design ideas, have a look into Mecrisp for MSP430, too !
+* You can contribute your favourite hardware handling routines 
+    to be included in upcoming releases !
 
 * Chip specific sources have added English comments and hints included
     for simplify porting to other ARM Cortex-M chips.
+
+* For design ideas, have a look into Mecrisp for MSP430, too !
 
 ;------------------------------------------------------------------------------
 ; Turnkey applications
@@ -656,7 +709,6 @@ Deep insights:
         .s              ( many -- many ) Prints stack contents, signed
         u.s             ( many -- many ) Prints stack contents, unsigned
         h.s             ( many -- many ) Prints stack contents, unsigned, hex
-        dump            ( addr -- ) Dumps a bit of memory
         hex.            ( u -- ) Prints 32 bit unsigned in hex base,
                                  needs emit only.
                                  This is independent of number subsystem.
@@ -725,7 +777,9 @@ Deep insights:
 
         flashvar-here   ( -- a-addr ) Gives current RAM management pointer
         dictionarystart ( -- a-addr ) Current entry point for dictionary search
-  
+        dictionarynext  ( a-addr -- a-addr flag ) 
+                        Scans dictionary chain and returns true if end is reached.
+                             
     Available depending on chip capabilities:
 
         c,              ( char -- ) Appends a byte to dictionary
@@ -887,10 +941,13 @@ limit index   do ... [one or more leave(s)] ... loop
 
         dint            ( -- ) Disables Interrupts
         eint            ( -- ) Enables  Interrupts
-        nop             ( -- ) No Operation. Hook for unused IRQs !
+        ipsr            ( -- ipsr ) Interrupt Program Status Register
+        nop             ( -- ) No Operation. Hook for unused handlers !
+        unhandled       ( -- ) Message for unhandled interrupts.
 
         irq-systick     ( -- a-addr ) Memory locations for IRQ-Hooks
-        irq-fault       ( -- a-addr ) For all faults and unhandled interrupts
+        irq-fault       ( -- a-addr ) For all faults
+        irq-collection  ( -- a-addr ) Collection of all unhandled interrupts
 
 ;------------------------------------------------------------------------------
 ; Specials for LM4F120:
@@ -1009,6 +1066,36 @@ Interrupts:
         irq-tim3
 
   Look into vectors.s and interrupts.s to add more interrupts.
+
+;------------------------------------------------------------------------------
+; Specials for STM32L152:
+;------------------------------------------------------------------------------
+
+Flash:
+        eraseflash      ( -- ) Erases everything. Clears Ram. Restarts Forth.
+
+        eraseflashfrom  ( a-addr -- ) Starts erasing at this address.
+                                      Clears Ram. Restarts Forth.
+
+        flashpageerase  ( a-addr -- ) Erase one 256 byte flash page only. Take care:
+                                      No Reset, no dictionary reinitialisation.
+
+        flash!          ( u|n a-addr -- )   Writes word to flash
+
+Interrupts:
+
+        irq-adc         ( -- a-addr ) Memory locations for IRQ-Hooks
+        irq-dac
+        irq-exti4
+        irq-exti3
+        irq-exti2
+        irq-exti1
+        irq-exti0
+        irq-tim2
+        irq-tim3
+        irq-tim4
+
+  Look into vectors.s and interrupts.s to add more interrupts.
   
 ;------------------------------------------------------------------------------
 ; Specials for STM32F100 and STM32F103:
@@ -1033,6 +1120,35 @@ Interrupts:
         irq-exti2
         irq-exti1
         irq-exti0
+
+  Look into vectors.s and interrupts.s to add more interrupts.
+
+;------------------------------------------------------------------------------
+; Specials for STM32F303:
+;------------------------------------------------------------------------------
+
+Flash:
+        eraseflash      ( -- ) Erases everything. Clears Ram. Restarts Forth.
+
+        eraseflashfrom  ( a-addr -- ) Starts erasing at this address.
+                                      Clears Ram. Restarts Forth.
+
+        flashpageerase  ( a-addr -- ) Erase one 2k flash page only. Take care:
+                                      No Reset, no dictionary reinitialisation.
+
+        hflash!         ( u|n a-addr -- )   Writes halfword to flash
+
+Interrupts:
+
+        irq-adc         ( -- a-addr ) Memory locations for IRQ-Hooks
+        irq-exti4
+        irq-exti3
+        irq-exti2
+        irq-exti1
+        irq-exti0
+        irq-tim2
+        irq-tim3
+        irq-tim4
 
   Look into vectors.s and interrupts.s to add more interrupts.
 
@@ -1091,8 +1207,6 @@ Interrupts:
 ;------------------------------------------------------------------------------
 ; Specials for MK20DX256:
 ;------------------------------------------------------------------------------
-
-        ipsr            ( -- ipsr ) Interrupt Program Status Register
 
 Flash:
         eraseflash      ( -- ) Erases everything. Clears Ram. Restarts Forth.

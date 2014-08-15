@@ -282,3 +282,16 @@
 
   Matthias Koch:
   - Cleaned up core sources to save a few bytes
+
+16.07.2014, Matthias Koch, Mecrisp-Stellaris 2.0.2
+
+  - Added IPSR by Mark Schweizer for all targets
+  - Added UNHANDLED as new default for all IRQs
+  - irq-fault now catches fault handlers only
+  - irq-collection catches all other interrupts
+  - Factored common vector tables and interrupts
+  - Added dictionarynext to core
+  - Removed dump
+
+  - New target: STM32F303VCT6 on STM F3 Discovery
+  - New target: STM32L152RE   on STM Nucleo L152RE
